@@ -1,1 +1,0 @@
-curl https://api.instagram.com/v1/media/555/likes?access_token=ACCESS-TOKEN
