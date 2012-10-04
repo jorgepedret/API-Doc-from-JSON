@@ -1,0 +1,18 @@
+header#header
+  .navbar.navbar-inverse.navbar-fixed-top
+    .navbar-inner
+      .container-fluid
+        a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href="/") <i class="icon-home icon-white"></i> <strong>Instagram</strong> API
+        .nav-collapse.collapse
+          ul.nav
+            li: a(href="/") Overview
+            li.dropdown
+              a.dropdown-toggle(href="#", data-toggle="dropdown") Endpoints <b class="caret"></b>
+              ul.dropdown-menu
+                each group, i in doc.groups
+                  li(class="#{ active === i?'active':'' }")
+                    a(href="/endpoints/#{ i }")= group.name

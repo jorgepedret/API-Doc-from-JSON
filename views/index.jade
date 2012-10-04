@@ -1,0 +1,37 @@
+header.page-header
+  h1 #{ group.title }
+.body
+  .eps-index#edpoints-index
+    each ep, i in group.endpoints
+      a(href="##{ i }")
+        div(class="ep ep-short ep-#{ ep.method }")
+          header.ep-header
+            .ep-method= ep.method
+            .ep-path= ep.path
+            .ep-excerpt= ep.name
+  h2 Endpoint Details
+  .eps
+    each ep, i in group.endpoints
+      div(class="ep ep-#{ ep.method }", id="#{ i }")
+        header.ep-header
+          .ep-method= ep.method
+          .ep-path= ep.path
+        .ep-body
+          .ep-description= ep.description
+          - if (ep.params.length > 0)
+            .ep-params
+              header
+                strong Parameters
+              table.table.table-hover
+                tbody
+                  each param in ep.params
+                    tr
+                      td.key= param.key
+                      td.description= param.description
+          .ep-curl
+            button.btn-response.btn(data-toggle="collapse", data-target="##{ i }-response") Sample Request <span class="caret"></span>
+            .ep-response.collapse(id="#{ i }-response")
+              span Curl Request:
+              pre: code= ep.curl
+              span Sample Response:
+              pre: code= ep.response

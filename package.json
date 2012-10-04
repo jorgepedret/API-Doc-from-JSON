@@ -1,0 +1,17 @@
+{
+  "description": "API Doc Template",
+  "version": "0.0.1-2",
+  "dependencies": {
+    "express": "2.5.11",
+    "jade": "0.27.2"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  },
+  "subdomain": "apidoc2",
+  "scripts": {
+    "start": "server.js"
+  },
+  "name": "apidoctemplate2"
+}
