@@ -17,7 +17,7 @@ header.page-header
       h4 No endpoints
       p You haven't added any endpoints to this group
       p
-        a.btn.btn-success(href="/new-endpoint") <i class="icon-plus icon-white"></i> Add an endpoint
+        a.btn.btn-success(href="/#{ doc.id }/new-endpoint") <i class="icon-plus icon-white"></i> Add an endpoint
   - if (group.endpoints)
     h2 Endpoint Details
     .eps
@@ -27,7 +27,8 @@ header.page-header
             .ep-method= ep.method
             .ep-path= ep.path
           .ep-body
-            .ep-description= ep.description
+            .ep-description
+              != md(ep.description)
             - if (ep.params.length > 0)
               .ep-params
                 header

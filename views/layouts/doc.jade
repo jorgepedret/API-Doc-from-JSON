@@ -1,8 +1,10 @@
 != partial("common/head")
-!= partial("common/header")
+!= partial("common/doc-header")
 .container-fluid
   .row-fluid
-    .span6.offset3
+    .span3
+      != partial("common/doc-aside")
+    .span9
       !{flashMessages}
       != body
 != partial("common/foot")

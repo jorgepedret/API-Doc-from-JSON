@@ -1,0 +1,24 @@
+header.page-header
+  h1 New API
+form(method="post")
+  .controls
+    label(for="name") API Name:
+    input#name.span12(type="text", name="name", placeholder="Your API or project name")
+  .controls
+    label(for="base_url") Base URL:
+    input#name.span12(type="text", name="base_url", placeholder="http://yourapi.domain.com/")
+
+  legend API Page
+  .controls
+    label(for="title") Introduction to the API:
+    textarea.span12.input-tall(name="intro", placeholder="")
+    span.help-block <i class="icon-gift"></i> Tip: You can use <a href="http://warpedvisions.org/projects/markdown-cheat-sheet/" target="_blank">markdown</a>
+
+  legend Endpoints Page
+  .controls
+    label(for="title") Introduction to the API Endpoints:
+    textarea.span12.input-tall(name="endpoints_intro", placeholder="")
+    span.help-block <i class="icon-gift"></i> Tip: You can use <a href="http://warpedvisions.org/projects/markdown-cheat-sheet/" target="_blank">markdown</a>
+  .form-actions
+    button.btn.btn-cancel Cancel
+    button.btn.btn-success Add Group

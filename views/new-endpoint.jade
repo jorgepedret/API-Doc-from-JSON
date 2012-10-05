@@ -14,15 +14,9 @@ form(method="post")
         .ep-method
           select.span12(name="method")
             option(value="get") GET
-            option(value="get") POST
-            option(value="get") PUT
-            option DELETE
-          //- a(data-toggle="dropdown", href="#") Method <span class="caret"></span>
-          //- ul.dropdown-menu
-          //-   li: a(href="#") GET
-          //-   li: a(href="#") POST
-          //-   li: a(href="#") PUT
-          //-   li: a(href="#") DELETE
+            option(value="post") POST
+            option(value="put") PUT
+            option(value="delete") DELETE
         .ep-path
           input.span12(type="text", name="path", placeholder="/path/to/endpoint/{id}")
         .ep-excerpt

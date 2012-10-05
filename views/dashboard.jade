@@ -1,0 +1,8 @@
+header.page-header
+  h1 Your API Docs
+
+- if (docs)
+  table.table.table-striped.table-hover
+    each doc, doc_id in docs
+      tr
+        td: a(href="/#{ doc_id }")= doc.name

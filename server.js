@@ -2,17 +2,25 @@ var fs          = require("fs");
 var express     = require("express");
 var jade        = require("jade");
 var slugs       = require("slugs");
+var md          = require("node-markdown").Markdown;
 var port        = process.env.PORT || 8001;
 var app         = express.createServer();
 
 var config      = require("./config");
-var doc         = config.doc;
+var doc         = config.docs.instagram;
 
 // --------------------
 // configure
 // --------------------
 
-app.helpers({ doc: doc });
+app.helpers({
+  doc: doc,
+  title: "APIme",
+  md: function (mdString) {
+    mdString = mdString.replace(/\n/g, '<br />');
+    return md(mdString, true, "br|a|small|strong");
+  }
+});
 app.dynamicHelpers({
   flashMessages: function (req, rsp) {
     var html = '';
@@ -25,6 +33,18 @@ app.dynamicHelpers({
     return html;
   }
 });
+var checkDoc = function (req, rsp, next) {
+  var doc = config.docs[req.params.doc];
+  if (typeof doc === "undefined") {
+    req.flash('error', "Invalid doc page");
+    rsp.redirect("/");
+  } else {
+    doc.id = req.params.doc;
+    req.doc = doc;
+    next();
+  }
+}
+var middleware = [];
 
 app.configure(function () {
   app.set("view engine", "jade");
@@ -37,37 +57,86 @@ app.configure(function () {
   app.use(express.static(__dirname + "/public"));
 });
 
-app.get("/", function(req, rsp) {
-  rsp.render("home", {
-    active: "home"
+app.get("/", function (req, rsp) {
+  rsp.redirect("/dashboard");
+});
+
+app.get("/dashboard", function (req, rsp) {
+  var docs = config.docs;
+  rsp.render("dashboard", {
+    title: "Dashboard",
+    docs: docs
   });
 });
 
-app.get("/new-group", function (req, rsp) {
-  rsp.render("new-group", {
-    active: "new-group"
+app.get("/new-doc", function (req, rsp) {
+  rsp.render("new-doc", {
+    title: "Add new doc",
+    active: "new-doc"
   });
 });
 
-app.post("/new-group", function (req, rsp) {
+app.post("/new-doc", function (req, rsp) {
+  var docs = config.docs;
   var id = slugs(req.body.name);
-  doc.groups[id] = {
+  if (typeof docs[id] !== "undefined") {
+    req.flash('error', "A doc with this name already ");
+    rsp.redirect("/new-doc");
+  } else {
+    docs[id] = {
+      "name": req.body.name,
+      "base_url": req.body.base_url,
+      "intro": req.body.intro,
+      "endpoints_intro": req.body.endpoints_intro,
+      "groups": {}
+    };
+    rsp.redirect("/" + id);
+  }
+});
+
+app.get("/:doc", checkDoc, function (req, rsp) {
+  rsp.render("home", {
+      layout: "layouts/doc",
+      title: "Instagram API",
+      active: "home",
+      doc: req.doc
+    });
+});
+
+app.get("/:doc/new-group", checkDoc, function (req, rsp) {
+  rsp.render("new-group", {
+      title: "Add new group",
+      active: "new-group",
+      layout: "layouts/doc",
+      doc: req.doc
+    });
+});
+
+app.post("/:doc/new-group", checkDoc, function (req, rsp) {
+  var id = slugs(req.body.name);
+  if (!req.doc.groups) req.doc.groups = {};
+  req.doc.groups[id] = {
     name: req.body.name,
     title: req.body.title,
     intro: req.body.intro
-  }
-  req.flash('success', "Group created successfully!", req.params.group);
+  };
+
+  req.flash('success', "Group successfully created!", req.params.group);
   rsp.status(201);
-  rsp.redirect("/endpoints/" + id);
+  rsp.redirect("/" + req.params.doc + "/endpoints/" + id);
 });
 
-app.get("/new-endpoint", function (req, rsp) {
+app.get("/:doc/new-endpoint", checkDoc, function (req, rsp) {
   rsp.render("new-endpoint", {
-    active: "new-endpoint"
+    title: "Add new endpoint",
+    active: "new-endpoint",
+    layout: "layouts/doc",
+    doc: req.doc
   });
 });
-app.post("/new-endpoint", function (req, rsp) {
-  var group = doc.groups[req.body.group];
+app.post("/:doc/new-endpoint", checkDoc, function (req, rsp) {
+
+  var group = req.doc.groups[req.body.group];
   if (typeof group === "undefined") {
     req.flash('error', "Invalid group: %s", req.body.group);
     rsp.redirect("/new-group");
@@ -83,26 +152,32 @@ app.post("/new-endpoint", function (req, rsp) {
       curl: req.body.curl,
       response: req.body.response
     };
-    rsp.redirect("/endpoints/" + req.body.group);
+    rsp.redirect("/" + req.params.doc + "/endpoints/" + req.body.group);
   }
 });
 
-app.get("/endpoints", function(req, rsp) {
+app.get("/:doc/endpoints", checkDoc, function(req, rsp) {
   rsp.render("endpoints", {
-    active: "endpoints"
+    title: "Endpoints overview",
+    active: "endpoints",
+    layout: "layouts/doc",
+    doc: req.doc
   });
 });
 
-app.get("/endpoints/:group", function(req, rsp) {
-  if (doc.groups[req.params.group]) {
+app.get("/:doc/endpoints/:group", checkDoc, function(req, rsp) {
+  if (req.doc.groups[req.params.group]) {
     rsp.render("index", {
+      layout: "layouts/doc",
+      title: req.doc.groups[req.params.group].name,
       active: req.params.group,
-      group: doc.groups[req.params.group],
-      group_id: req.params.group
+      group: req.doc.groups[req.params.group],
+      group_id: req.params.group,
+      doc: req.doc
     });
   } else {
     req.flash('error', "Invalid group: %s", req.params.group);
-    rsp.redirect("/endpoints");
+    rsp.redirect("/" + req.params.doc + "/endpoints");
   }
 });
 
