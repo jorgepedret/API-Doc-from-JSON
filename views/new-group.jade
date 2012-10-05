@@ -1,15 +1,18 @@
 header.page-header
   h1 New Group
-form
+form(method="post")
   .controls
     label(for="name") Group Name:
-    input#name.input-main.span8(type="text", name="name", placeholder="i.e.: Users")
+    input#name.span8(type="text", name="name", placeholder="i.e.: Users")
+
+  legend Group Page Information
   .controls
     label(for="title") Page Title:
     input#title.span8(type="text", name="title", placeholder="i.e.: User Endpoints")
   .controls
     label(for="intro") Page Intro:
     textarea#intro.input-tall.span8(name="intro", placeholder="i.e.: Welcome to the user endpoints!")
+    span.help-block Tip: You can use <a href="http://warpedvisions.org/projects/markdown-cheat-sheet/" target="_blank">markdown</a>
   .form-actions
     button.btn.btn-cancel Cancel
     button.btn.btn-success Add Group

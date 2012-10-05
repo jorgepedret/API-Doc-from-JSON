@@ -1,6 +1,7 @@
 var fs          = require("fs");
 var express     = require("express");
 var jade        = require("jade");
+var slugs       = require("slugs");
 var port        = process.env.PORT || 8001;
 var app         = express.createServer();
 
@@ -48,10 +49,36 @@ app.get("/new-group", function (req, rsp) {
   });
 });
 
+app.post("/new-group", function (req, rsp) {
+  var id = slugs(req.body.name);
+  doc.groups[id] = {
+    name: req.body.name,
+    title: req.body.title,
+    intro: req.body.intro
+  }
+  rsp.status(201);
+  rsp.redirect("/endpoints/" + id);
+});
+
 app.get("/new-endpoint", function (req, rsp) {
   rsp.render("new-endpoint", {
     active: "new-endpoint"
   });
+});
+app.post("/new-endpoint", function (req, rsp) {
+  var group = doc.groups[req.body.group];
+  var id = slugs(req.body.name);
+  if (!group.endpoints) group.endpoints = {};
+  group.endpoints[id] = {
+    method: req.body.method,
+    path: req.body.path,
+    name: req.body.name,
+    description: req.body.description,
+    params: req.body.params,
+    curl: req.body.curl,
+    response: req.body.response
+  };
+  rsp.redirect("/endpoints/" + req.body.group);
 });
 
 app.get("/endpoints", function(req, rsp) {
@@ -61,11 +88,15 @@ app.get("/endpoints", function(req, rsp) {
 });
 
 app.get("/endpoints/:group", function(req, rsp) {
-  rsp.render("index", {
-    active: req.params.group,
-    group: doc.groups[req.params.group],
-    group_id: req.params.group
-  });
+  if (doc.groups[req.params.group]) {
+    rsp.render("index", {
+      active: req.params.group,
+      group: doc.groups[req.params.group],
+      group_id: req.params.group
+    });
+  } else {
+    rsp.redirect("/endpoints");
+  }
 });
 
 // --------------------

@@ -14,9 +14,10 @@ header#header
               a.dropdown-toggle(href="#", data-toggle="dropdown") Endpoints <b class="caret"></b>
               ul.dropdown-menu
                 each group, i in doc.groups
-                  li(class="#{ active === i?'active':'' }")
+                  li
                     a(href="/endpoints/#{ i }")= group.name
-            li(class="#{ active === 'new-group'?'active':'' }")
-              a(href="/new-group") <i class="icon-plus icon-white"></i> Add Group
-            li(class="#{ active === 'new-endpoint'?'active':'' }")
-              a(href="/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint
+                li.divider
+                li
+                  a(href="/new-group") <i class="icon-plus"></i> Add Group
+                li
+                  a(href="/new-endpoint") <i class="icon-plus"></i> Add Endpoint
