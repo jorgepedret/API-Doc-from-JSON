@@ -39,9 +39,8 @@ header.page-header
                         td.key= param.key
                         td.description= param.description
             .ep-curl
-              button.btn-response.btn(data-toggle="collapse", data-target="##{ i }-response") Sample Request <span class="caret"></span>
+              span: strong Sample Request
+              pre: code= ep.curl
+              button.btn-response.btn(data-toggle="collapse", data-target="##{ i }-response") Sample Response <span class="caret"></span>
               .ep-response.collapse(id="#{ i }-response")
-                span Curl Request:
-                pre: code= ep.curl
-                span Sample Response:
                 pre: code= ep.response
