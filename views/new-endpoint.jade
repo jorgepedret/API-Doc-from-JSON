@@ -1,0 +1,49 @@
+header.page-header
+  h1 New Endpoint
+form
+  .controls
+    label(for="group") Endpoint Group:
+    select#group(name="group")
+      option Select a group...
+      each group, i in doc.groups
+        option(value="#{ i }")= group.name
+  .controls
+    label Endpoint:
+    .ep.ep-short.ep-edit
+      header.ep-header
+        .ep-method
+          a(data-toggle="dropdown", href="#") Method <span class="caret"></span>
+          ul.dropdown-menu
+            li: a(href="#") GET
+            li: a(href="#") POST
+            li: a(href="#") PUT
+            li: a(href="#") DELETE
+        .ep-path
+          input.span12(type="text", name="path", placeholder="i.e.: /path/to/endpoint/{id}")
+        .ep-excerpt
+          input.span12(type="text", name="id", placeholder="i.e.: Get authenticated user information")
+  .controls
+    label Description:
+    textarea.span12(placeholder="i.e.: Get authenticated user information")
+  .controls
+    label Params:
+    .ep-params
+      table.table.table-hover
+        tbody
+          tr
+            td.key
+              input.span12(type="text", placeholder="key")
+            td.description
+              input.span12(type="text", placeholder="Description")
+            td.actions
+              a.btn.btn-success(href="#")
+                i.icon-plus.icon-white
+              a.btn.btn-danger(href="#")
+                i.icon-minus.icon-white
+  .controls
+    label Sample CURL:
+    input.span12(type="text", placeholder="curl http://api.sample.com/")
+    textarea.span12.input-tall(placeholder="curl http://api.sample.com/")
+  .form-actions
+    button.btn.btn-cancel Cancel
+    button.btn.btn-success Add Endpoint

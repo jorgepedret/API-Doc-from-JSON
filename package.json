@@ -9,9 +9,9 @@
     "node": "0.8.x",
     "npm": "1.1.x"
   },
-  "subdomain": "apidoc2",
+  "subdomain": "dynamicapidoc",
   "scripts": {
     "start": "server.js"
   },
-  "name": "apidoctemplate2"
+  "name": "dynamicapidoc"
 }

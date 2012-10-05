@@ -16,3 +16,7 @@ header#header
                 each group, i in doc.groups
                   li(class="#{ active === i?'active':'' }")
                     a(href="/endpoints/#{ i }")= group.name
+            li(class="#{ active === 'new-group'?'active':'' }")
+              a(href="/new-group") <i class="icon-plus icon-white"></i> Add Group
+            li(class="#{ active === 'new-endpoint'?'active':'' }")
+              a(href="/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint

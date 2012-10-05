@@ -42,6 +42,18 @@ app.get("/", function(req, rsp) {
   });
 });
 
+app.get("/new-group", function (req, rsp) {
+  rsp.render("new-group", {
+    active: "new-group"
+  });
+});
+
+app.get("/new-endpoint", function (req, rsp) {
+  rsp.render("new-endpoint", {
+    active: "new-endpoint"
+  });
+});
+
 app.get("/endpoints", function(req, rsp) {
   rsp.render("endpoints", {
     active: "endpoints"
