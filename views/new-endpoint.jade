@@ -43,7 +43,8 @@ form(method="post")
                 i.icon-minus.icon-white
   .controls
     label Sample CURL:
-    input.span12(name="curl", type="text", placeholder="curl http://api.sample.com/")
+    textarea.span12.input-tall(name="curl", placeholder='curl http://api.sample.com/')
+    label Sample Response:
     textarea.span12.input-tall(name="response", placeholder='{ success: "always" }')
   .form-actions
     button.btn.btn-cancel Cancel
