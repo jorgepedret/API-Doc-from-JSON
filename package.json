@@ -8,7 +8,14 @@
     "node-markdown": "latest",
     "rolodex": "0.7.1",
     "thug": "0.3.2",
-    "redis": "0.7.2"
+    "redis": "0.8.1"
+  },
+  "scripts": { 
+    "test": "./node_modules/.bin/mocha --ignore-leaks test/*"
+  },
+  "devDependencies": { 
+    "mocha": "1.3.0",
+    "should": "1.0.0"
   },
   "engines": {
     "node": "0.8.x",

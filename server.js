@@ -131,7 +131,6 @@ app.post("/docs/new", authorized, function (req, rsp) {
     endpoints_intro: req.body.endpoints_intro,
     groups: {}
   }, function (err, doc) {
-    console.log("Created doc: ", doc);
     if (err) {
       req.flash('error', err.messages);
       rsp.redirect("/docs/new");
@@ -143,7 +142,6 @@ app.post("/docs/new", authorized, function (req, rsp) {
 });
 
 app.get("/docs/:doc", authorized, checkDoc, function (req, rsp) {
-  console.log(req.doc);
   rsp.render("doc/intro", {
       layout: "layouts/doc",
       title: "Instagram API",
@@ -207,7 +205,6 @@ app.post("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
       curl: req.body.curl,
       response: req.body.response
     };
-    console.log("Should have endpoint data: ", req.doc);
     Doc.set(req.doc.id, req.doc, function (err, doc) {
       if (err) {
         req.flash("error", err.messages);

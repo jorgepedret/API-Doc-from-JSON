@@ -107,29 +107,21 @@ module.exports = function (client) {
     var client = this.locals.client;
     var namespace = this.locals.namespace;
     var that = this;
+    var docs = [];
     client.smembers("user:" + owner + ":doc:collection", function (err, reply){
       var total = reply.length;
-      var count = 0;
-      var transaction = client.multi();
       if (total <= 0) {
         cb(reply);
       } else {
+        var count = reply.length;
         reply.forEach(function (id) {
-          transaction.hgetall(namespace + ":" + id);
-        });
-        
-        transaction.exec(function (err, replies) {
-          console.log("ERROR: ", err);
-          if (err) cb([]);
-          replies.forEach(function (obj, index) {
-            that.out(replies[index], function (record) {
-              count++;
-              if(count === total){
-                cb(replies);
-              }
-            })
+          client.hgetall(namespace + ":" + id, function (err, obj) {
+            docs.push(obj);
+            if (--count == 0) {
+              cb(docs);
+            }
           })
-        })
+        });
       }
     })
   }
