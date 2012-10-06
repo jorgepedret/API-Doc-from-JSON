@@ -6,7 +6,8 @@
     "jade": "0.27.2",
     "slugs": "latest",
     "node-markdown": "latest",
-    "rolodex": "0.7.1"
+    "rolodex": "0.7.1",
+    "thug": "0.3.2"
   },
   "engines": {
     "node": "0.8.x",
