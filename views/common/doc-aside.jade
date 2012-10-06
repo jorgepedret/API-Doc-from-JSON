@@ -1,9 +1,0 @@
-ul.sidebar-nav
-  li(class="#{ active === 'home'?'active':'' }")
-    a(href="/#{ doc.id }") Overview
-  li(class="#{ active === 'endpoints'?'active':'' }")
-    a(href="/#{ doc.id }/endpoints") Endpoints
-    ul
-      each group, i in doc.groups
-        li(class="#{ active === i?'active':'' }")
-          a(href="/#{ doc.id }/endpoints/#{ i }")= group.name

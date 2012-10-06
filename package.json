@@ -7,7 +7,8 @@
     "slugs": "latest",
     "node-markdown": "latest",
     "rolodex": "0.7.1",
-    "thug": "0.3.2"
+    "thug": "0.3.2",
+    "redis": "0.7.2"
   },
   "engines": {
     "node": "0.8.x",

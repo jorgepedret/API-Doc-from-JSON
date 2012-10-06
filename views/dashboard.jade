@@ -1,8 +1,12 @@
 header.page-header
   h1 Your API Docs
 
-- if (docs)
+- if (docs.length)
   table.table.table-striped.table-hover
-    each doc, doc_id in docs
+    each doc in docs
       tr
-        td: a(href="/#{ doc_id }")= doc.name
+        td: a(href="/docs/#{ doc.id }")= doc.name
+- else
+  .alert.alert-info
+    h4 No docs!
+    p Are you ready to <a href="/docs/new">create your first doc</a>?

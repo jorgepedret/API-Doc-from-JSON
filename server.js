@@ -2,6 +2,8 @@ var fs          = require("fs");
 var express     = require("express");
 var jade        = require("jade");
 var slugs       = require("slugs");
+var redis       = require("redis");
+var client      = redis.createClient();
 var RedisStore  = require('connect-redis')(express);
 var rolodex     = require("rolodex")();
 
@@ -12,16 +14,18 @@ var config      = require("./config");
 var helpers     = require("./lib/helpers");
 var middleware  = require("./lib/middleware");
 
+var Doc         = require("./models/doc")(client);
+
 var checkDoc = function (req, rsp, next) {
-  var doc = config.docs[req.params.doc];
-  if (typeof doc === "undefined") {
-    req.flash('error', "Invalid doc page");
-    rsp.redirect("/");
-  } else {
-    doc.id = req.params.doc;
-    req.doc = doc;
-    next();
-  }
+  Doc.get(req.params.doc, function (doc) {
+    if (typeof doc === "undefined") {
+      req.flash('error', "Invalid doc page");
+      rsp.redirect("/");
+    } else {
+      req.doc = doc;
+      next();
+    }
+  });
 };
 
 var authorized = [middleware.profile, middleware.authorized];
@@ -53,7 +57,6 @@ app.get("/", unauthorized, function (req, rsp) {
 });
 
 app.get("/logout", authorized, function (req, rsp) {
-  console.log("SHIT!");
   req.session.account = null;
   rsp.redirect("/");
 });
@@ -63,10 +66,11 @@ app.get("/login", unauthorized, function (req, rsp) {
     layout: "layouts/sales"
   });
 });
+
 app.post("/login", unauthorized, function (req, rsp) {
   rolodex.account.authenticate({ email: req.body.email}, req.body.password, function (err, account) {
     if (err) {
-      req.flash("error", err);
+      req.flash("error", err.messages);
       rsp.redirect("/login");
     } else {
       req.session.account = account;
@@ -81,6 +85,7 @@ app.get("/signup", unauthorized, function (req, rsp) {
     layout: "layouts/sales"
   });
 });
+
 app.post("/signup", unauthorized, function (req, rsp) {
   rolodex.account.set({
     email: req.body.email,
@@ -91,46 +96,54 @@ app.post("/signup", unauthorized, function (req, rsp) {
       req.flash("error", err.messages);
       rsp.redirect("/signup");
     } else {
-      req.session.account = account;
-      rsp.redirect("/dashboard");
+      // req.session.account = account;
+      // rsp.redirect("/dashboard");
+      fs.mkdir(__dirname + "/docs/" + account.id, "0777", function () {
+        req.session.account = account;
+        rsp.redirect("/dashboard");
+      })
     }
   })
 });
 
 app.get("/dashboard", authorized, function (req, rsp) {
-  var docs = config.docs;
-  rsp.render("dashboard", {
-    title: "Dashboard",
-    docs: docs
+  Doc.allByOwnerId(req.profile.id, function (docs) {
+    rsp.render("dashboard", {
+      title: "Dashboard",
+      docs: docs
+    });
   });
 });
 
-app.get("/new-doc", authorized, function (req, rsp) {
+app.get("/docs/new", authorized, function (req, rsp) {
   rsp.render("new-doc", {
     title: "Add new doc",
     active: "new-doc"
   });
 });
 
-app.post("/new-doc", authorized, function (req, rsp) {
-  var docs = config.docs;
-  var id = slugs(req.body.name);
-  if (typeof docs[id] !== "undefined") {
-    req.flash('error', "A doc with this name already ");
-    rsp.redirect("/new-doc");
-  } else {
-    docs[id] = {
-      "name": req.body.name,
-      "base_url": req.body.base_url,
-      "intro": req.body.intro,
-      "endpoints_intro": req.body.endpoints_intro,
-      "groups": {}
-    };
-    rsp.redirect("/" + id);
-  }
+app.post("/docs/new", authorized, function (req, rsp) {
+  Doc.set({
+    owner: req.profile.id,
+    name: req.body.name,
+    base_url: req.body.base_url,
+    intro: req.body.intro,
+    endpoints_intro: req.body.endpoints_intro,
+    groups: {}
+  }, function (err, doc) {
+    console.log("Created doc: ", doc);
+    if (err) {
+      req.flash('error', err.messages);
+      rsp.redirect("/docs/new");
+    } else {
+      req.flash('success', "Doc created successfully! Time to <a href='#'>add a group</a>");
+      rsp.redirect("/docs/" + doc.id);
+    }
+  });
 });
 
-app.get("/:doc", authorized, checkDoc, function (req, rsp) {
+app.get("/docs/:doc", authorized, checkDoc, function (req, rsp) {
+  console.log(req.doc);
   rsp.render("doc/intro", {
       layout: "layouts/doc",
       title: "Instagram API",
@@ -139,7 +152,7 @@ app.get("/:doc", authorized, checkDoc, function (req, rsp) {
     });
 });
 
-app.get("/:doc/new-group", authorized, checkDoc, function (req, rsp) {
+app.get("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/new-group", {
       title: "Add new group",
       active: "new-group",
@@ -148,7 +161,7 @@ app.get("/:doc/new-group", authorized, checkDoc, function (req, rsp) {
     });
 });
 
-app.post("/:doc/new-group", authorized, checkDoc, function (req, rsp) {
+app.post("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {
   var id = slugs(req.body.name);
   if (!req.doc.groups) req.doc.groups = {};
   req.doc.groups[id] = {
@@ -156,13 +169,19 @@ app.post("/:doc/new-group", authorized, checkDoc, function (req, rsp) {
     title: req.body.title,
     intro: req.body.intro
   };
-
-  req.flash('success', "Group successfully created!", req.params.group);
-  rsp.status(201);
-  rsp.redirect("/" + req.params.doc + "/endpoints/" + id);
+  Doc.set(req.doc.id, req.doc, function (err, doc) {
+    if (err) {
+      req.flash("error", "Fail: ", err.messages);
+      rsp.redirect("/docs/" + req.params.doc + "/endpoints");
+    } else {
+      req.flash('success', "Group successfully created!", req.params.group);
+      rsp.status(201);
+      rsp.redirect("/docs/" + req.params.doc + "/endpoints/" + id);
+    }
+  });
 });
 
-app.get("/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
+app.get("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/new-endpoint", {
     title: "Add new endpoint",
     active: "new-endpoint",
@@ -170,12 +189,12 @@ app.get("/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
     doc: req.doc
   });
 });
-app.post("/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
 
+app.post("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
   var group = req.doc.groups[req.body.group];
   if (typeof group === "undefined") {
     req.flash('error', "Invalid group: %s", req.body.group);
-    rsp.redirect("/new-group");
+    rsp.redirect("/docs/" + req.params.doc + "/new-group");
   } else {
     var id = slugs(req.body.name);
     if (typeof group.endpoints === "undefined") group.endpoints = {};
@@ -188,11 +207,19 @@ app.post("/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
       curl: req.body.curl,
       response: req.body.response
     };
-    rsp.redirect("/" + req.params.doc + "/endpoints/" + req.body.group);
+    console.log("Should have endpoint data: ", req.doc);
+    Doc.set(req.doc.id, req.doc, function (err, doc) {
+      if (err) {
+        req.flash("error", err.messages);
+        rsp.redirect("/docs/" + req.params.doc + "/endpoints/");
+      } else {
+        rsp.redirect("/docs/" + req.params.doc + "/endpoints/" + req.body.group);
+      }
+    });
   }
 });
 
-app.get("/:doc/endpoints", authorized, checkDoc, function(req, rsp) {
+app.get("/docs/:doc/endpoints", authorized, checkDoc, function(req, rsp) {
   rsp.render("doc/endpoints-intro", {
     title: "Endpoints overview",
     active: "endpoints",
@@ -201,7 +228,7 @@ app.get("/:doc/endpoints", authorized, checkDoc, function(req, rsp) {
   });
 });
 
-app.get("/:doc/endpoints/:group", authorized, checkDoc, function(req, rsp) {
+app.get("/docs/:doc/endpoints/:group", authorized, checkDoc, function(req, rsp) {
   if (req.doc.groups[req.params.group]) {
     rsp.render("doc/endpoints", {
       layout: "layouts/doc",
@@ -213,7 +240,7 @@ app.get("/:doc/endpoints/:group", authorized, checkDoc, function(req, rsp) {
     });
   } else {
     req.flash('error', "Invalid group: %s", req.params.group);
-    rsp.redirect("/" + req.params.doc + "/endpoints");
+    rsp.redirect("/docs/" + req.params.doc + "/endpoints");
   }
 });
 

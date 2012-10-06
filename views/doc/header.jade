@@ -1,0 +1,17 @@
+header#header
+  .navbar.navbar-inverse.navbar-fixed-top
+    .navbar-inner
+      .container-fluid
+        a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href="/dashboard") <i class="icon-home icon-white"></i> <strong>API</strong>me
+        .nav-collapse.collapse
+          ul.nav
+            li: a(href="/docs/#{ doc.id }/new-group") <i class="icon-plus icon-white"></i> Add Group
+            li: a(href="/docs/#{ doc.id }/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint
+            li: a(href="/docs/#{ doc.id }/settings") <i class="icon-cog icon-white"></i> Settings
+          
+          ul.nav.pull-right
+            li: a.navbar-link(href="/logout") Logout
