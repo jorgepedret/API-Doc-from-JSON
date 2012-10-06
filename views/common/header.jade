@@ -6,10 +6,10 @@ header#header
           span.icon-bar
           span.icon-bar
           span.icon-bar
-        a.brand(href="/") <i class="icon-home icon-white"></i> <strong>API</strong>me
+        a.brand(href="/dashboard") <i class="icon-home icon-white"></i> <strong>API</strong>me
         .nav-collapse.collapse
           ul.nav
-            li: a(href="/") Dashboard
             li: a(href="/new-doc") <i class="icon-plus icon-white"></i> Add Doc
-            //- li: a(href="/new-group") <i class="icon-plus icon-white"></i> Add Group
-            //- li: a(href="/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint
+          
+          ul.nav.pull-right
+            li: a.navbar-link(href="/logout") Logout

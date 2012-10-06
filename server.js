@@ -2,37 +2,16 @@ var fs          = require("fs");
 var express     = require("express");
 var jade        = require("jade");
 var slugs       = require("slugs");
-var md          = require("node-markdown").Markdown;
+var RedisStore  = require('connect-redis')(express);
+var rolodex     = require("rolodex")();
+
 var port        = process.env.PORT || 8001;
 var app         = express.createServer();
 
 var config      = require("./config");
-var doc         = config.docs.instagram;
+var helpers     = require("./lib/helpers");
+var middleware  = require("./lib/middleware");
 
-// --------------------
-// configure
-// --------------------
-
-app.helpers({
-  doc: doc,
-  title: "APIme",
-  md: function (mdString) {
-    mdString = mdString.replace(/\n/g, '<br />');
-    return md(mdString, true, "br|a|small|strong");
-  }
-});
-app.dynamicHelpers({
-  flashMessages: function (req, rsp) {
-    var html = '';
-    ['error', 'info', 'success'].forEach(function (type) {
-      var messages = req.flash(type);
-      if (messages.length > 0) {
-        html += '<div class="alert alert-' + type + '">' + messages.join(', ') + '</div>';
-      }
-    });
-    return html;
-  }
-});
 var checkDoc = function (req, rsp, next) {
   var doc = config.docs[req.params.doc];
   if (typeof doc === "undefined") {
@@ -43,8 +22,18 @@ var checkDoc = function (req, rsp, next) {
     req.doc = doc;
     next();
   }
-}
-var middleware = [];
+};
+
+var authorized = [middleware.profile, middleware.authorized];
+var unauthorized = [middleware.profile, middleware.unauthorized];
+
+// --------------------
+// configure
+// --------------------
+app.helpers(helpers.helpers);
+app.dynamicHelpers(helpers.dynamicHelpers);
+
+// var checkDoc = middleware.checkDoc;
 
 app.configure(function () {
   app.set("view engine", "jade");
@@ -52,16 +41,63 @@ app.configure(function () {
   app.set('view options', { layout: "layouts/application", pretty: true });
   app.use(express.bodyParser());
   app.use(express.cookieParser());
-  app.use(express.session({cookie: { path: '/', httpOnly: true, maxAge: null }, secret:'ahloco'}));
+  app.use(express.session({ secret: "ahloco", store: new RedisStore }));
   app.use(express.methodOverride());
   app.use(express.static(__dirname + "/public"));
 });
 
-app.get("/", function (req, rsp) {
-  rsp.redirect("/dashboard");
+app.get("/", unauthorized, function (req, rsp) {
+  rsp.render("home", {
+    layout: "layouts/sales"
+  });
 });
 
-app.get("/dashboard", function (req, rsp) {
+app.get("/logout", authorized, function (req, rsp) {
+  console.log("SHIT!");
+  req.session.account = null;
+  rsp.redirect("/");
+});
+
+app.get("/login", unauthorized, function (req, rsp) {
+  rsp.render("login", {
+    layout: "layouts/sales"
+  });
+});
+app.post("/login", unauthorized, function (req, rsp) {
+  rolodex.account.authenticate({ email: req.body.email}, req.body.password, function (err, account) {
+    if (err) {
+      req.flash("error", err);
+      rsp.redirect("/login");
+    } else {
+      req.session.account = account;
+      rsp.redirect("/dashboard");
+    }
+
+  })
+});
+
+app.get("/signup", unauthorized, function (req, rsp) {
+  rsp.render("signup", {
+    layout: "layouts/sales"
+  });
+});
+app.post("/signup", unauthorized, function (req, rsp) {
+  rolodex.account.set({
+    email: req.body.email,
+    password: req.body.password,
+    password_confirmation: req.body.confirm
+  }, function (err, account) {
+    if (err) {
+      req.flash("error", err.messages);
+      rsp.redirect("/signup");
+    } else {
+      req.session.account = account;
+      rsp.redirect("/dashboard");
+    }
+  })
+});
+
+app.get("/dashboard", authorized, function (req, rsp) {
   var docs = config.docs;
   rsp.render("dashboard", {
     title: "Dashboard",
@@ -69,14 +105,14 @@ app.get("/dashboard", function (req, rsp) {
   });
 });
 
-app.get("/new-doc", function (req, rsp) {
+app.get("/new-doc", authorized, function (req, rsp) {
   rsp.render("new-doc", {
     title: "Add new doc",
     active: "new-doc"
   });
 });
 
-app.post("/new-doc", function (req, rsp) {
+app.post("/new-doc", authorized, function (req, rsp) {
   var docs = config.docs;
   var id = slugs(req.body.name);
   if (typeof docs[id] !== "undefined") {
@@ -94,8 +130,8 @@ app.post("/new-doc", function (req, rsp) {
   }
 });
 
-app.get("/:doc", checkDoc, function (req, rsp) {
-  rsp.render("home", {
+app.get("/:doc", authorized, checkDoc, function (req, rsp) {
+  rsp.render("doc/intro", {
       layout: "layouts/doc",
       title: "Instagram API",
       active: "home",
@@ -103,8 +139,8 @@ app.get("/:doc", checkDoc, function (req, rsp) {
     });
 });
 
-app.get("/:doc/new-group", checkDoc, function (req, rsp) {
-  rsp.render("new-group", {
+app.get("/:doc/new-group", authorized, checkDoc, function (req, rsp) {
+  rsp.render("doc/new-group", {
       title: "Add new group",
       active: "new-group",
       layout: "layouts/doc",
@@ -112,7 +148,7 @@ app.get("/:doc/new-group", checkDoc, function (req, rsp) {
     });
 });
 
-app.post("/:doc/new-group", checkDoc, function (req, rsp) {
+app.post("/:doc/new-group", authorized, checkDoc, function (req, rsp) {
   var id = slugs(req.body.name);
   if (!req.doc.groups) req.doc.groups = {};
   req.doc.groups[id] = {
@@ -126,15 +162,15 @@ app.post("/:doc/new-group", checkDoc, function (req, rsp) {
   rsp.redirect("/" + req.params.doc + "/endpoints/" + id);
 });
 
-app.get("/:doc/new-endpoint", checkDoc, function (req, rsp) {
-  rsp.render("new-endpoint", {
+app.get("/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
+  rsp.render("doc/new-endpoint", {
     title: "Add new endpoint",
     active: "new-endpoint",
     layout: "layouts/doc",
     doc: req.doc
   });
 });
-app.post("/:doc/new-endpoint", checkDoc, function (req, rsp) {
+app.post("/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
 
   var group = req.doc.groups[req.body.group];
   if (typeof group === "undefined") {
@@ -156,8 +192,8 @@ app.post("/:doc/new-endpoint", checkDoc, function (req, rsp) {
   }
 });
 
-app.get("/:doc/endpoints", checkDoc, function(req, rsp) {
-  rsp.render("endpoints", {
+app.get("/:doc/endpoints", authorized, checkDoc, function(req, rsp) {
+  rsp.render("doc/endpoints-intro", {
     title: "Endpoints overview",
     active: "endpoints",
     layout: "layouts/doc",
@@ -165,9 +201,9 @@ app.get("/:doc/endpoints", checkDoc, function(req, rsp) {
   });
 });
 
-app.get("/:doc/endpoints/:group", checkDoc, function(req, rsp) {
+app.get("/:doc/endpoints/:group", authorized, checkDoc, function(req, rsp) {
   if (req.doc.groups[req.params.group]) {
-    rsp.render("index", {
+    rsp.render("doc/endpoints", {
       layout: "layouts/doc",
       title: req.doc.groups[req.params.group].name,
       active: req.params.group,
