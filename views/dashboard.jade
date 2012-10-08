@@ -6,6 +6,15 @@ header.page-header
     each doc in docs
       tr
         td: a(href="/docs/#{ doc.id }")= doc.name
+        td
+          .btn-group
+            a.btn.dropdown-toggle(data-toggle="dropdown", href="#") <i class="icon-cog"></i> <span class="caret"></span>
+            ul.dropdown-menu
+              li: a(href="/docs/#{ doc.id }") Edit
+              li: a(href="#") Sharing
+              li.divider
+              li: a(href="#") Download JSON file
+              li: a(href="#") Export as static website
 - else
   .alert.alert-info
     h4 No docs!

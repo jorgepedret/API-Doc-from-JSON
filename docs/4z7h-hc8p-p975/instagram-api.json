@@ -1,0 +1,78 @@
+{
+  "owner": "4z7h-hc8p-p975",
+  "name": "Instagram API",
+  "base_url": "https://api.instagram.com/v1/",
+  "intro": "# Hello Developers. #\r\nThe first version of the Instagram API is an exciting step forward towards making it easier for users to have open access to their data. We created it so that you can surface the amazing content Instagram users share every second, in fun and innovative ways.\r\n\r\nBuild something great.\r\n\r\n[Register Your Application](#) then [dive into the documentation](./endpoints)",
+  "endpoints_intro": "#Instagram API Endpoints\r\n\r\nOnce you've registered your client it's easy to start requesting data from Instagram.\r\n\r\nAll endpoints are only accessible via https and are located at api.instagram.com. For instance: you can grab the most popular photos at the moment by accessing the following URL with your client ID (replace CLIENT-ID with your own):\r\n\r\n`https://api.instagram.com/v1/media/popular?client_id=CLIENT-ID`\r\n\r\nYou're best off using an access_token for the authenticated user for each endpoint, though many endpoints don't require it. In some cases an access_token will give you more access to information, and in all cases, it means that you are operating under a per-access_token limit vs. the same limit for your single client_id.",
+  "groups": {
+    "users": {
+      "name": "Users",
+      "title": "User Endpoints",
+      "intro": "",
+      "endpoints": {
+        "get-basic-information-about-a-user": {
+          "method": "get",
+          "path": "/users/{user-id}",
+          "name": "Get basic information about a user.",
+          "description": "Get basic information about a user.",
+          "params": {
+            "0].ke": "",
+            "0].descriptio": ""
+          },
+          "curl": "https://api.instagram.com/v1/users/1574083/?access_token=ACCESS-TOKEN",
+          "response": "{\r\n    \"data\": {\r\n        \"id\": \"1574083\",\r\n        \"username\": \"snoopdogg\",\r\n        \"full_name\": \"Snoop Dogg\",\r\n        \"profile_picture\": \"http://distillery.s3.amazonaws.com/profiles/profile_1574083_75sq_1295469061.jpg\",\r\n        \"bio\": \"This is my bio\",\r\n        \"website\": \"http://snoopdogg.com\",\r\n        \"counts\": {\r\n            \"media\": 1320,\r\n            \"follows\": 420,\r\n            \"followed_by\": 3410\r\n        }\r\n}"
+        },
+        "jhvhjgvjh": {
+          "method": "put",
+          "path": "nhvhgv",
+          "name": "jhvhjgvjh",
+          "description": "ngchgcghc",
+          "params": {
+            "0].ke": "hvhj",
+            "0].descriptio": "vhjgvjh"
+          },
+          "curl": "hjhv",
+          "response": "bkb"
+        }
+      }
+    },
+    "relationships": {
+      "name": "Relationships",
+      "title": "Relationship Endpoints",
+      "intro": ""
+    },
+    "media": {
+      "name": "Media",
+      "title": "Media Endpoints",
+      "intro": ""
+    },
+    "comments": {
+      "name": "Comments",
+      "title": "Comment Endpoints",
+      "intro": ""
+    },
+    "likes": {
+      "name": "Likes",
+      "title": "Like Endpoints",
+      "intro": ""
+    },
+    "tags": {
+      "name": "Tags",
+      "title": "Tag Endpoints",
+      "intro": ""
+    },
+    "locations": {
+      "name": "Locations",
+      "title": "Location Endpoints",
+      "intro": ""
+    },
+    "geographies": {
+      "name": "Geographies",
+      "title": "Geography Endpoints",
+      "intro": ""
+    }
+  },
+  "id": "instagram-api",
+  "updated_at": "2012-10-06T21:24:08.657Z",
+  "created_at": "2012-10-06T19:43:32.145Z"
+}

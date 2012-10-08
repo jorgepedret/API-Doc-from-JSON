@@ -1,0 +1,52 @@
+header.page-header
+  h1 Sharing Settings
+form(method="post")
+  .controls.sharing-options-access
+    label.radio.radio-inline
+      input.inline(type="radio", name="access", value="public")
+      |  Public Access
+    label.radio.radio-inline
+      input.inline(type="radio", name="access", value="emails")
+      |  Selected Emails
+    label.radio.radio-inline
+      input.inline(type="radio", name="access", value="url")
+      |  Anyone with the link
+  .sharing-option.sharing-option-public.hide
+    legend Public Options
+    span.help-block Anybody can access the Doc via URL
+
+  .sharing-option.sharing-option-url.hide
+    legend Private Link Options
+    .controls
+      label Anybody can access the Doc using this URL:
+      .input-append
+        input.span8(type="text", value="http://apime.io/asdasd/instagram", name="private_url")
+        a.btn
+          i.icon-file
+
+  .sharing-option.sharing-option-emails.hide
+    legend Selected Emails Options
+    span.help-block Enter the emails that you want to give access to:
+    table.table.table-hover.table-striped
+      thead
+        tr
+          th Email
+          th Permissions
+          th Actions
+      tbody
+        tr
+          td
+            input(type="text", value="jorgepedret@gmail.com")
+          td
+            label.checkbox.checkbox-inline
+              input.inline(type="checkbox", name="canEdit", value="true")
+              |  Can Edit
+          td
+            a.btn.btn-success(href="#")
+              i.icon-plus.icon-white
+            a.btn.btn-danger(href="#")
+              i.icon-minus.icon-white
+    .alert <i class="icon-envelope"></i> An email notification will be sent to new emails added
+  .form-actions
+    button.btn.btn-cancel Cancel
+    button.btn.btn-success Save Sharing Settings

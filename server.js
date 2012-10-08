@@ -17,10 +17,21 @@ var middleware  = require("./lib/middleware");
 var Doc         = require("./models/doc")(client);
 
 var checkDoc = function (req, rsp, next) {
-  Doc.get(req.params.doc, function (doc) {
-    if (typeof doc === "undefined") {
-      req.flash('error', "Invalid doc page");
-      rsp.redirect("/");
+  Doc.getByContext(req.params.doc, req.profile, function (err, doc) {
+    if (err) {
+      req.flash("error", err.message);
+      switch(err.type) {
+        case 'login':
+          rsp.redirect("/" + doc.owner + "/" + doc.id + "/login");
+          break;
+        case 'forbidden':
+          rsp.redirect("/dashboard");
+          break;
+        case 'invalid':
+        default:
+          rsp.redirect("/");
+          break;
+      }
     } else {
       req.doc = doc;
       next();
@@ -132,7 +143,7 @@ app.post("/docs/new", authorized, function (req, rsp) {
     groups: {}
   }, function (err, doc) {
     if (err) {
-      req.flash('error', err.messages);
+      req.flash("error", err.messages);
       rsp.redirect("/docs/new");
     } else {
       req.flash('success', "Doc created successfully! Time to <a href='#'>add a group</a>");
@@ -143,9 +154,18 @@ app.post("/docs/new", authorized, function (req, rsp) {
 
 app.get("/docs/:doc", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/intro", {
-      layout: "layouts/doc",
+      layout: "layouts/doc-edit",
       title: "Instagram API",
       active: "home",
+      doc: req.doc
+    });
+});
+
+app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
+  rsp.render("doc/sharing", {
+      layout: "layouts/doc-edit",
+      title: "Sharing | " + req.doc.name,
+      active: "asdasda",
       doc: req.doc
     });
 });
@@ -154,7 +174,7 @@ app.get("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/new-group", {
       title: "Add new group",
       active: "new-group",
-      layout: "layouts/doc",
+      layout: "layouts/doc-edit",
       doc: req.doc
     });
 });
@@ -183,7 +203,7 @@ app.get("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/new-endpoint", {
     title: "Add new endpoint",
     active: "new-endpoint",
-    layout: "layouts/doc",
+    layout: "layouts/doc-edit",
     doc: req.doc
   });
 });
@@ -191,7 +211,7 @@ app.get("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
 app.post("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
   var group = req.doc.groups[req.body.group];
   if (typeof group === "undefined") {
-    req.flash('error', "Invalid group: %s", req.body.group);
+    req.flash("error", "Invalid group: %s", req.body.group);
     rsp.redirect("/docs/" + req.params.doc + "/new-group");
   } else {
     var id = slugs(req.body.name);
@@ -216,19 +236,19 @@ app.post("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
   }
 });
 
-app.get("/docs/:doc/endpoints", authorized, checkDoc, function(req, rsp) {
+app.get("/docs/:doc/endpoints", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/endpoints-intro", {
     title: "Endpoints overview",
     active: "endpoints",
-    layout: "layouts/doc",
+    layout: "layouts/doc-edit",
     doc: req.doc
   });
 });
 
-app.get("/docs/:doc/endpoints/:group", authorized, checkDoc, function(req, rsp) {
+app.get("/docs/:doc/endpoints/:group", authorized, checkDoc, function (req, rsp) {
   if (req.doc.groups[req.params.group]) {
     rsp.render("doc/endpoints", {
-      layout: "layouts/doc",
+      layout: "layouts/doc-edit",
       title: req.doc.groups[req.params.group].name,
       active: req.params.group,
       group: req.doc.groups[req.params.group],
@@ -236,7 +256,7 @@ app.get("/docs/:doc/endpoints/:group", authorized, checkDoc, function(req, rsp) 
       doc: req.doc
     });
   } else {
-    req.flash('error', "Invalid group: %s", req.params.group);
+    req.flash("error", "Invalid group: %s", req.params.group);
     rsp.redirect("/docs/" + req.params.doc + "/endpoints");
   }
 });

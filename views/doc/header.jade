@@ -11,7 +11,15 @@ header#header
           ul.nav
             li: a(href="/docs/#{ doc.id }/new-group") <i class="icon-plus icon-white"></i> Add Group
             li: a(href="/docs/#{ doc.id }/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint
-            li: a(href="/docs/#{ doc.id }/settings") <i class="icon-cog icon-white"></i> Settings
+            li.dropdown
+              a.dropdown-toggle(data-toggle="dropdown", href="/docs/#{ doc.id }/settings") <i class="icon-cog icon-white"></i> Settings <span class="caret"></span>
+              ul.dropdown-menu
+                li: a(href="/#{ doc.owner }/#{ doc.id }") Preview
+                li: a(href="/docs/#{ doc.id }/sharing") Sharing
+                li.divider
+                li: a(href="#") Download JSON file
+                li: a(href="#") Export as static website
+
           
           ul.nav.pull-right
             li: a.navbar-link(href="/logout") Logout

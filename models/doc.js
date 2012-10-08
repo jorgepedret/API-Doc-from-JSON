@@ -95,6 +95,58 @@ module.exports = function (client) {
     }
   }
 
+  doc.constructor.prototype.getByContext = function (identifier, profile, callback) {
+    this.read(identifier, function (doc) {
+      if (doc) {
+        if (doc.isPublic) {
+          doc.isOwner = doc.owner === profile.id;
+          doc.canEdit = !!doc.canEdit&&doc.canEdit[profile.id];
+          callback(null, doc);
+        } else {
+          if (!profile) {
+            var error = {
+              type: "login",
+              message: "Please login to access this doc"
+            }
+            callback(error, null);
+          } else {
+            var responseDoc = {};
+            var isOwner = doc.owner === profile.id;
+            var canView = !!doc.canView&&doc.canView[profile.id];
+            var canEdit = !!doc.canEdit&&doc.canEdit[profile.id];
+            if (isOwner) {
+              responseDoc = doc;
+              responseDoc.isOwner = true;
+              responseDoc.canEdit = true;
+            }
+            if (canView) {
+              responseDoc = doc;
+            }
+            if (canEdit) {
+              responseDoc = doc;
+              responseDoc.canEdit = true;
+            }
+            if (!isOwner && !canEdit && !canView) {
+              var error = {
+                type: "forbidden",
+                message: "You don't have access to view or edit this doc"
+              }
+              callback(error, null);
+            } else {
+              callback(null, responseDoc);
+            }
+          }
+        }
+      } else {
+        var error = {
+          type: "invalid",
+          message: "Invalid doc URL"
+        }
+        callback(error, null);
+      }
+    });
+  }
+
   // Remove
   doc.constructor.prototype.remove = function (identifier, record, callback) {
     var file_path = config.docs_dir + identifier + ".json";

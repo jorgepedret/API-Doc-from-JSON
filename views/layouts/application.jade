@@ -1,8 +1,8 @@
-!= partial("common/head")
-!= partial("common/header")
-.container-fluid
-  .row-fluid
-    .span6.offset3
-      !{flashMessages}
-      != body
-!= partial("common/foot")
+include ../common/head
+  include ../common/header
+  .container-fluid
+    .row-fluid
+      .span6.offset3
+        !{flashMessages}
+        != body
+  include ../common/foot

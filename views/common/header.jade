@@ -9,7 +9,8 @@ header#header
         a.brand(href="/dashboard") <i class="icon-home icon-white"></i> <strong>API</strong>me
         .nav-collapse.collapse
           ul.nav
-            li: a(href="/docs/new") <i class="icon-plus icon-white"></i> Add Doc
+            li(class="#{ active==='new-doc'?'active':'' }")
+              a(href="/docs/new") <i class="icon-plus icon-white"></i> Add Doc
           
           ul.nav.pull-right
             li: a.navbar-link(href="/logout") Logout

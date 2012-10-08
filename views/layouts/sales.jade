@@ -1,7 +1,6 @@
-!= partial("common/head")
-!= partial("sales/header")
-.container-fluid
-  !{flashMessages}
-  != body
-      
-!= partial("common/foot")
+include ../common/head
+  include ../sales/header
+  .container-fluid
+    !{flashMessages}
+    != body
+  include ../common/foot
