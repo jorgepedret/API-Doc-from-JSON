@@ -1,4 +1,5 @@
 var slugs = require('slugs');
+var uuid = require('node-uuid');
 var fs    = require('fs');
 var config= require('../config');
 var docs_dir = config.docs_dir;
@@ -6,13 +7,20 @@ var docs_dir = config.docs_dir;
 exports.doc = {
   blacklist: function (obj, next) {
     delete obj.id;
+    delete obj.slug;
     delete obj.created_at;
     delete obj.updated_at;
     next(obj);
   },
   id: function (obj, next) {
     if (!obj.id) {
-      obj.id = slugs(obj.name);
+      obj.id = uuid.v4();
+    }
+    next(obj);
+  },
+  slug: function (obj, next) {
+    if (!obj.slug) {
+      obj.slug = slugs(obj.name);
     }
     next(obj);
   },

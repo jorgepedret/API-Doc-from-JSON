@@ -15,6 +15,7 @@ module.exports = function (client) {
       ],
       beforeValidate: [
         filters.id,
+        filters.slug,
         filters.file
       ],
       beforeWrite: [
@@ -96,11 +97,12 @@ module.exports = function (client) {
   }
 
   doc.constructor.prototype.getByContext = function (identifier, profile, callback) {
+    profile = profile||{};
     this.read(identifier, function (doc) {
       if (doc) {
         if (doc.isPublic) {
           doc.isOwner = doc.owner === profile.id;
-          doc.canEdit = !!doc.canEdit&&doc.canEdit[profile.id];
+          doc.canEdit = (doc.canEdit&&doc.canEdit[profile.id])||doc.owner === profile.id;
           callback(null, doc);
         } else {
           if (!profile) {

@@ -14,7 +14,7 @@ header#header
             li.dropdown
               a.dropdown-toggle(data-toggle="dropdown", href="/docs/#{ doc.id }/settings") <i class="icon-cog icon-white"></i> Settings <span class="caret"></span>
               ul.dropdown-menu
-                li: a(href="/#{ doc.owner }/#{ doc.id }") Preview
+                li: a(href="/docs/#{ doc.id }?preview") Preview
                 li: a(href="/docs/#{ doc.id }/sharing") Sharing
                 li.divider
                 li: a(href="#") Download JSON file

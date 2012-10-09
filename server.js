@@ -22,7 +22,7 @@ var checkDoc = function (req, rsp, next) {
       req.flash("error", err.message);
       switch(err.type) {
         case 'login':
-          rsp.redirect("/" + doc.owner + "/" + doc.id + "/login");
+          rsp.redirect("/docs/" + req.params.doc + "/login");
           break;
         case 'forbidden':
           rsp.redirect("/dashboard");
@@ -152,22 +152,31 @@ app.post("/docs/new", authorized, function (req, rsp) {
   });
 });
 
-app.get("/docs/:doc", authorized, checkDoc, function (req, rsp) {
-  rsp.render("doc/intro", {
-      layout: "layouts/doc-edit",
-      title: "Instagram API",
-      active: "home",
-      doc: req.doc
-    });
+app.get("/docs/:doc", middleware.profile, checkDoc, function (req, rsp) {
+  var params = {
+    layout: "layouts/doc-edit",
+    title: "Instagram API",
+    active: "home",
+    doc: req.doc
+  }
+  if (!req.doc.canEdit || req.query.preview) {
+    // Read only access
+    params.layout = "layouts/doc";
+  }
+  if (req.query.preview) {
+    // Enable preview mode
+    params.preview = true;
+  }
+  rsp.render("doc/intro", params);
 });
 
 app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/sharing", {
-      layout: "layouts/doc-edit",
-      title: "Sharing | " + req.doc.name,
-      active: "asdasda",
-      doc: req.doc
-    });
+    layout: "layouts/doc-edit",
+    title: "Sharing | " + req.doc.name,
+    active: "asdasda",
+    doc: req.doc
+  });
 });
 
 app.get("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {
@@ -236,25 +245,43 @@ app.post("/docs/:doc/new-endpoint", authorized, checkDoc, function (req, rsp) {
   }
 });
 
-app.get("/docs/:doc/endpoints", authorized, checkDoc, function (req, rsp) {
-  rsp.render("doc/endpoints-intro", {
+app.get("/docs/:doc/endpoints", middleware.profile, checkDoc, function (req, rsp) {
+  var params = {
     title: "Endpoints overview",
     active: "endpoints",
     layout: "layouts/doc-edit",
     doc: req.doc
-  });
+  }
+  if (!req.doc.canEdit || req.query.preview) {
+    // Read only access
+    params.layout = "layouts/doc";
+  }
+  if (req.query.preview) {
+    // Enable preview mode
+    params.preview = true;
+  }
+  rsp.render("doc/endpoints-intro", params);
 });
 
-app.get("/docs/:doc/endpoints/:group", authorized, checkDoc, function (req, rsp) {
+app.get("/docs/:doc/endpoints/:group", middleware.profile, checkDoc, function (req, rsp) {
   if (req.doc.groups[req.params.group]) {
-    rsp.render("doc/endpoints", {
+    var params = {
       layout: "layouts/doc-edit",
       title: req.doc.groups[req.params.group].name,
       active: req.params.group,
       group: req.doc.groups[req.params.group],
       group_id: req.params.group,
       doc: req.doc
-    });
+    }
+    if (!req.doc.canEdit || req.query.preview) {
+      // Read only access
+      params.layout = "layouts/doc";
+    }
+    if (req.query.preview) {
+      // Enable preview mode
+      params.preview = true;
+    }
+    rsp.render("doc/endpoints", params);
   } else {
     req.flash("error", "Invalid group: %s", req.params.group);
     rsp.redirect("/docs/" + req.params.doc + "/endpoints");

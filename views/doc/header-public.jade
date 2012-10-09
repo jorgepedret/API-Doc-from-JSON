@@ -2,4 +2,13 @@ header#header
   .navbar.navbar-inverse.navbar-fixed-top
     .navbar-inner
       .container-fluid
-        a.brand(href="/dashboard") <i class="icon-home icon-white"></i> #{ doc.name }
+        - if (preview)
+          a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        a.brand(href!=getURL("/docs/#{ doc.id }", preview)) <i class="icon-home icon-white"></i> #{ doc.name }
+        - if (preview)
+          .nav-collapse.collapse.pull-right
+            ul.nav
+              li: a(href="/docs/#{ doc.id }") &larr; Go back to Edit

@@ -1,0 +1,43 @@
+{
+  "owner": "4z7h-hc8p-p975",
+  "name": "asdasasd",
+  "base_url": "adasad",
+  "intro": "asdasad",
+  "endpoints_intro": "asdasasd",
+  "groups": {
+    "relationships": {
+      "name": "Relationships",
+      "title": "Relationship Endpoints",
+      "intro": "asdasd",
+      "endpoints": {
+        "fasdfasdf": {
+          "method": "get",
+          "path": "asdfasdfasd",
+          "name": "fasdfasdf",
+          "description": "asdfasdfasdfasdfasdf",
+          "params": {
+            "].ke": [
+              "",
+              "asdfas",
+              "adfasdf"
+            ],
+            "].descriptio": [
+              "",
+              "dfasdf",
+              "asdfasdf"
+            ]
+          },
+          "curl": "adfasdf",
+          "response": "asdfasdfasdf"
+        }
+      }
+    }
+  },
+  "id": "3dae2e17-c841-402d-89d2-048ce0422b1a",
+  "slug": "asdasasd",
+  "updated_at": "2012-10-09T02:01:34.179Z",
+  "created_at": "2012-10-09T01:27:55.071Z",
+  "isPublic": true,
+  "isOwner": true,
+  "canEdit": true
+}
