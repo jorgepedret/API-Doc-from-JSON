@@ -1,7 +1,8 @@
 app.Router = Backbone.Router.extend({
   routes: {
     "login": "login",
-    "docs/:doc/sharing": "sharing"
+    "docs/:doc/sharing": "sharing",
+    "docs/:doc/new-endpoint": "newEndpoint"
   },
   initialize: function () {
     $(".eps-index a").smoothScroll({
@@ -17,5 +18,10 @@ app.Router = Backbone.Router.extend({
       $(".sharing-option").addClass("hide");
       $(".sharing-option-" + access).removeClass("hide");
     });
+
+    $(".repeatable").repeatable();
+  },
+  newEndpoint: function () {
+    $(".repeatable").repeatable();
   }
 });

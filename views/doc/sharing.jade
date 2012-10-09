@@ -33,19 +33,20 @@ form(method="post")
           th Email
           th Permissions
           th Actions
-      tbody
-        tr
+      tbody.repeatable
+        tr.repeatable-item-template.hide
           td
-            input(type="text", value="jorgepedret@gmail.com")
+            input(type="text", value="", placeholder="Email Address")
           td
             label.checkbox.checkbox-inline
               input.inline(type="checkbox", name="canEdit", value="true")
               |  Can Edit
           td
-            a.btn.btn-success(href="#")
+            a.btn.btn-success.repeatable-add(href="#")
               i.icon-plus.icon-white
-            a.btn.btn-danger(href="#")
+            a.btn.btn-danger.repeatable-rem(href="#")
               i.icon-minus.icon-white
+        
     .alert <i class="icon-envelope"></i> An email notification will be sent to new emails added
   .form-actions
     button.btn.btn-cancel Cancel

@@ -30,16 +30,26 @@ form(method="post")
     label Params:
     .ep-params.ep-params-edit
       table.table.table-hover
-        tbody
-          tr
+        tbody.repeatable
+          tr.repeatable-item-template.hide
             td.key
-              input.span12(name="params[0].key", type="text", placeholder="key")
+              input.span12(name="params[].key", type="text", placeholder="key")
             td.description
-              input.span12(name="params[0].description", type="text", placeholder="Description")
+              input.span12(name="params[].description", type="text", placeholder="Description")
             td.actions
-              a.btn.btn-success(href="#")
+              a.btn.btn-success.repeatable-add(href="#")
                 i.icon-plus.icon-white
-              a.btn.btn-danger(href="#")
+              a.btn.btn-danger.repeatable-rem(href="#")
+                i.icon-minus.icon-white
+          tr.repeatable-item
+            td.key
+              input.span12(name="params[].key", type="text", placeholder="key")
+            td.description
+              input.span12(name="params[].description", type="text", placeholder="Description")
+            td.actions
+              a.btn.btn-success.repeatable-add(href="#")
+                i.icon-plus.icon-white
+              a.btn.btn-danger.repeatable-rem(href="#")
                 i.icon-minus.icon-white
   .controls
     label Sample CURL:
