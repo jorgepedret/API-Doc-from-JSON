@@ -12,3 +12,7 @@ header#header
           .nav-collapse.collapse.pull-right
             ul.nav
               li: a(href="/docs/#{ doc.id }") &larr; Go back to Edit
+        - if (isLoggedIn)
+          .nav-collapse.collapse.pull-right
+            ul.nav
+              li: a(href="/logout") Logout

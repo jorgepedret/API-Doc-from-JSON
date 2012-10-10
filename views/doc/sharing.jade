@@ -36,10 +36,10 @@ form(method="post")
       tbody.repeatable
         tr.repeatable-item-template.hide
           td
-            input(type="text", value="", placeholder="Email Address")
+            input(type="text", name="emails[][email]", value="", placeholder="Email Address")
           td
             label.checkbox.checkbox-inline
-              input.inline(type="checkbox", name="canEdit", value="true")
+              input.inline(type="checkbox", name="emails[][canEdit]", value="true")
               |  Can Edit
           td
             a.btn.btn-success.repeatable-add(href="#")

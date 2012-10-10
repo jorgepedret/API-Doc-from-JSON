@@ -15,6 +15,14 @@ $.fn.repeatable = function (options) {
       return newTemplate;
     }
     var checkCount = function () {
+      var count = 0;
+      that.$(".repeatable-item").each(function () {
+        $(this).find("[name*='[]']").prop("name", function (index, oldValue) {
+          var newValue = oldValue.replace(/(\[\])/, "[" + count + "]");
+          return newValue;
+        });
+        count++;
+      });
       if (that.$(".repeatable-item").length <= 1) {
         that.$(".repeatable-item .repeatable-rem").addClass("invisible");
       } else {

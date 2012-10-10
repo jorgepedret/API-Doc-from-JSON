@@ -18,6 +18,7 @@ var Doc         = require("./models/doc")(client);
 
 var checkDoc = function (req, rsp, next) {
   Doc.getByContext(req.params.doc, req.profile, function (err, doc) {
+    // console.log(doc);
     if (err) {
       req.flash("error", err.message);
       switch(err.type) {
@@ -177,6 +178,70 @@ app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
     active: "asdasda",
     doc: req.doc
   });
+});
+
+function getAccount(email, cb) {
+  rolodex.account.get({ email: email}, function (account) {
+    if (!account) {
+      rolodex.account.set({
+        email: email,
+        password: "123456",
+        password_confirmation: "123456"
+      }, function (err, account) {
+        cb(err, account);
+      })
+    } else {
+      cb(null, account);
+    }
+  });
+}
+
+app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
+  var doc = req.doc;
+  function saveDoc(id, doc) {
+    Doc.set(id, doc, function (err, doc) {
+      req.flash("success", "Sharing settings saved!");
+      rsp.redirect("/docs/" + doc.id + "/sharing");
+    });
+  }
+  if (doc.isOwner) {
+    switch (req.body.access) {
+      case 'public':
+        doc.isPublic = true;
+        doc.editAccess = [];
+        doc.viewAccess = [];
+        saveDoc(doc.id, doc);
+        break;
+      case 'emails':
+        doc.isPublic = false;
+        doc.editAccess = [];
+        doc.viewAccess = [];
+        var count = 0;
+        if (req.body.emails && req.body.emails.length) {
+          req.body.emails.forEach(function (email) {
+            getAccount(email.email, function (err, account) {
+              if (email.canEdit) {
+                doc.editAccess.push(account.id);
+              } else {
+                doc.viewAccess.push(account.id);
+              }
+              count++;
+              if (count >= req.body.emails.length) {
+                saveDoc(doc.id, doc);
+              }
+            });
+          });
+        }
+        break;
+      case 'url':
+        doc.isPublic = false;
+        saveDoc(doc.id, doc);
+        break;
+    }
+  } else {
+    req.flash("error", "Access denied");
+    rsp.redirect("/docs/" + doc.id);
+  }
 });
 
 app.get("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {

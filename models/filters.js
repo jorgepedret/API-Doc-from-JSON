@@ -49,38 +49,20 @@ exports.doc = {
   updated_at: function (obj, next) {
     obj.updated_at = (new Date()).toJSON();
     next(obj);
-  }
-};
-
-exports.group = {
-  blacklist: function (obj, next) {
-    delete obj.id;
-    delete obj.created_at;
-    delete obj.updated_at;
+  },
+  clean_up: function (obj, next) {
+    delete obj.isOwner;
+    delete obj.canEdit;
     next(obj);
   },
-  id: function (obj, next) {
-    if (!obj.id) {
-      obj.id = uuid.v4();
+  optional_props: function (obj, next) {
+    if (!obj.viewAccess instanceof Array) {
+      obj.viewAccess = [];
     }
-    next(obj);
-  },
-  slug: function (obj, next) {
-    obj.slug = slugs(obj.name);
-    next(obj);
-  },
-  created_at: function (obj, next) {
-    if (!obj.created_at) {
-      obj.created_at = (new Date()).toJSON();
+    if (!obj.editAccess instanceof Array) {
+      obj.editAccess = [];
     }
-    next(obj);
-  },
-  updated_at: function (obj, next) {
-    obj.updated_at = (new Date()).toJSON();
+    obj.isPublic = !!obj.isPublic;
     next(obj);
   }
-};
-
-exports.endpoint = {
-  
 };

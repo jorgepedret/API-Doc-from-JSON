@@ -20,7 +20,9 @@ module.exports = function (client) {
       ],
       beforeWrite: [
         filters.updated_at,
-        filters.created_at
+        filters.created_at,
+        filters.clean_up,
+        filters.optional_props
       ],
       out: []
     },
@@ -44,6 +46,29 @@ module.exports = function (client) {
         }
       });
     }
+
+    var updatePermissions = function (oldObj, obj, cb) {
+      var oldEditAccess = oldObj.editAccess||[];
+      var oldViewAccess = oldObj.viewAccess||[];
+      var count = 0;
+
+      obj.editAccess = obj.editAccess || [];
+      
+      oldEditAccess.forEach(function (userId) {
+        client.srem("user:" + userId + ":doc:collection");
+      });
+      obj.editAccess.forEach(function (userId) {
+        client.sadd("user:" + userId + ":doc:collection", obj.id);
+      });
+      
+      oldViewAccess.forEach(function (userId) {
+        client.srem("user:" + userId + ":doc:collection");
+      });
+      obj.viewAccess.forEach(function (userId) {
+        client.sadd("user:" + userId + ":doc:collection", obj.id);
+      });
+      cb(null);
+    }
     
     client.hgetall(key, function (err, old) {
       var dbObj = {
@@ -55,16 +80,20 @@ module.exports = function (client) {
       };
       if (!old) {
         // Couldn't find the object, so it most be a new record
+        console.log("WRITING: doc:slug:" + obj.slug, obj.id);
         client.multi()
         .hmset(key, dbObj)
         .zadd(namespace + ":collection", (new Date(obj.created_at).getTime()), obj.id)
-        .sadd("user:" + obj.owner + ":doc:collection", obj.id)
+        .sadd("user:" + obj.owner + ":" + namespace + ":collection", obj.id)
+        .set(namespace + ":slug:" + obj.slug, obj.id)
         .exec(function (err, replies) {
           callback(err, obj);
         });
       } else {
-        client.hmset(key, dbObj, function (err, replies) {
-          callback(err, obj);
+        updatePermissions(old, obj, function (err) {
+          client.hmset(key, dbObj, function (err, replies) {
+            callback(err, obj);
+          });
         });
       }
     });
@@ -89,6 +118,7 @@ module.exports = function (client) {
         break;
       }
       client.get(namespace + ":" + key + ":" + q[key], function (err, id){
+        console.log(id);
         client.hgetall(namespace + ":" + id, callback);
       });
     } else {
@@ -98,11 +128,13 @@ module.exports = function (client) {
 
   doc.constructor.prototype.getByContext = function (identifier, profile, callback) {
     profile = profile||{};
-    this.read(identifier, function (doc) {
+    this.read({slug: identifier}, function (doc) {
       if (doc) {
+        doc.editAccess = doc.editAccess||[];
+        doc.viewAccess = doc.viewAccess||[];
         if (doc.isPublic) {
           doc.isOwner = doc.owner === profile.id;
-          doc.canEdit = (doc.canEdit&&doc.canEdit[profile.id])||doc.owner === profile.id;
+          doc.canEdit = (doc.editAccess&&doc.editAccess[profile.id])||doc.owner === profile.id;
           callback(null, doc);
         } else {
           if (!profile) {
@@ -114,8 +146,8 @@ module.exports = function (client) {
           } else {
             var responseDoc = {};
             var isOwner = doc.owner === profile.id;
-            var canView = !!doc.canView&&doc.canView[profile.id];
-            var canEdit = !!doc.canEdit&&doc.canEdit[profile.id];
+            var canView = doc.viewAccess.indexOf(profile.id)!==-1;
+            var canEdit = doc.editAccess.indexOf(profile.id)!==-1;
             if (isOwner) {
               responseDoc = doc;
               responseDoc.isOwner = true;
@@ -150,10 +182,24 @@ module.exports = function (client) {
   }
 
   // Remove
-  doc.constructor.prototype.remove = function (identifier, record, callback) {
-    var file_path = config.docs_dir + identifier + ".json";
-    fs.unlink(file_path, function (err) {
-      callback(err);
+  doc.constructor.prototype.remove = function (id, obj, cb) {
+
+    var namespace = this.locals.namespace;
+    var client = this.locals.client;
+    
+    var key = namespace + ":" + obj.id;
+
+    client.hgetall(key, function (err, old) {
+      client.multi()
+      .del(key)
+      .zrem(namespace + ":collection", obj.id)
+      .srem("user:" + obj.owner + ":doc:collection", obj.id)
+      .exec(function (err, replies) {
+        var file_path = config.docs_dir + obj.owner + "/" + obj.id + ".json";
+        fs.unlink(file_path, function (err) {
+          cb(err);
+        });
+      });
     });
   }
 
