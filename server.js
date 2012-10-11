@@ -48,8 +48,6 @@ var unauthorized = [middleware.profile, middleware.unauthorized];
 app.helpers(helpers.helpers);
 app.dynamicHelpers(helpers.dynamicHelpers);
 
-// var checkDoc = middleware.checkDoc;
-
 app.configure(function () {
   app.set("view engine", "jade");
   app.set('views', __dirname + '/views'); 
@@ -64,6 +62,34 @@ app.configure(function () {
 app.get("/", unauthorized, function (req, rsp) {
   rsp.render("home", {
     layout: "layouts/sales"
+  });
+});
+
+app.get("/features", middleware.profile, function (req, rsp) {
+  rsp.render("features", {
+    layout: "layouts/sales",
+    active: "features"
+  });
+});
+
+app.get("/examples", middleware.profile, function (req, rsp) {
+  rsp.render("examples", {
+    layout: "layouts/sales",
+    active: "examples"
+  });
+});
+
+app.get("/github", middleware.profile, function (req, rsp) {
+  rsp.render("github", {
+    layout: "layouts/sales",
+    active: "github"
+  });
+});
+
+app.get("/support", middleware.profile, function (req, rsp) {
+  rsp.render("support", {
+    layout: "layouts/sales",
+    active: "support"
   });
 });
 
