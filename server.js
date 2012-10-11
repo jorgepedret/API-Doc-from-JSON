@@ -7,7 +7,7 @@ var client      = redis.createClient();
 var RedisStore  = require('connect-redis')(express);
 var rolodex     = require("rolodex")();
 
-var port        = process.env.PORT || 8001;
+var port        = process.env.PORT || 5001;
 var app         = express.createServer();
 
 var config      = require("./config");
@@ -18,7 +18,6 @@ var Doc         = require("./models/doc")(client);
 
 var checkDoc = function (req, rsp, next) {
   Doc.getByContext(req.params.doc, req.profile, function (err, doc) {
-    // console.log(doc);
     if (err) {
       req.flash("error", err.message);
       switch(err.type) {
@@ -108,8 +107,6 @@ app.post("/signup", unauthorized, function (req, rsp) {
       req.flash("error", err.messages);
       rsp.redirect("/signup");
     } else {
-      // req.session.account = account;
-      // rsp.redirect("/dashboard");
       fs.mkdir(__dirname + "/docs/" + account.id, "0777", function () {
         req.session.account = account;
         rsp.redirect("/dashboard");
@@ -138,6 +135,7 @@ app.post("/docs/new", authorized, function (req, rsp) {
   Doc.set({
     owner: req.profile.id,
     name: req.body.name,
+    slug: req.body.slug,
     base_url: req.body.base_url,
     intro: req.body.intro,
     endpoints_intro: req.body.endpoints_intro,
@@ -148,7 +146,23 @@ app.post("/docs/new", authorized, function (req, rsp) {
       rsp.redirect("/docs/new");
     } else {
       req.flash('success', "Doc created successfully! Time to <a href='#'>add a group</a>");
-      rsp.redirect("/docs/" + doc.id);
+      rsp.redirect("/docs/" + doc.slug);
+    }
+  });
+});
+
+app.get("/docs/checkSlug", function (req, rsp) {
+  var slug = req.query.slug||'';
+  Doc.get({ slug: slug }, function (doc) {
+    if (!doc) {
+      rsp.status(200);
+      rsp.send("");
+    } else {
+      rsp.status(409);
+      rsp.send({
+        messages: [ "This URL is already taken" ],
+        details: { "url": "already taken" }
+      });
     }
   });
 });
@@ -199,9 +213,16 @@ function getAccount(email, cb) {
 app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   var doc = req.doc;
   function saveDoc(id, doc) {
-    Doc.set(id, doc, function (err, doc) {
-      req.flash("success", "Sharing settings saved!");
-      rsp.redirect("/docs/" + doc.id + "/sharing");
+    Doc.get({ slug: doc.slug }, function (exists) {
+      if (!exists) {
+        Doc.set(id, doc, function (err, doc) {
+          req.flash("success", "Sharing settings saved!");
+          rsp.redirect("/docs/" + req.params.doc + "/sharing");
+        });
+      } else {
+        req.flash("error", "An API Doc with the same URL already exists");
+        rsp.redirect("/docs/" + req.params.doc);
+      }
     });
   }
   if (doc.isOwner) {
@@ -240,7 +261,7 @@ app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
     }
   } else {
     req.flash("error", "Access denied");
-    rsp.redirect("/docs/" + doc.id);
+    rsp.redirect("/docs/" + req.params.doc);
   }
 });
 

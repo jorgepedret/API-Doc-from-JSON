@@ -10,14 +10,14 @@ header#header
         .nav-collapse.collapse
           ul.nav
             li(class="#{ active=='new-group'?'active':'' }")
-              a(href="/docs/#{ doc.id }/new-group") <i class="icon-plus icon-white"></i> Add Group
+              a(href="/docs/#{ doc.slug }/new-group") <i class="icon-plus icon-white"></i> Add Group
             li(class="#{ active=='new-endpoint'?'active':'' }")
-              a(href="/docs/#{ doc.id }/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint
+              a(href="/docs/#{ doc.slug }/new-endpoint") <i class="icon-plus icon-white"></i> Add Endpoint
             li.dropdown
-              a.dropdown-toggle(data-toggle="dropdown", href="/docs/#{ doc.id }/settings") <i class="icon-cog icon-white"></i> Settings <span class="caret"></span>
+              a.dropdown-toggle(data-toggle="dropdown", href="/docs/#{ doc.slug }/settings") <i class="icon-cog icon-white"></i> Settings <span class="caret"></span>
               ul.dropdown-menu
-                li: a(href="/docs/#{ doc.id }?preview") Preview
-                li: a(href="/docs/#{ doc.id }/sharing") Sharing
+                li: a(href="/docs/#{ doc.slug }?preview") Preview
+                li: a(href="/docs/#{ doc.slug }/sharing") Sharing
                 li.divider
                 li: a(href="#") Download JSON file
                 li: a(href="#") Export as static website

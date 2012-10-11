@@ -1,6 +1,7 @@
 app.Router = Backbone.Router.extend({
   routes: {
     "login": "login",
+    "docs/new": "newDoc",
     "docs/:doc/sharing": "sharing",
     "docs/:doc/new-endpoint": "newEndpoint"
   },
@@ -11,6 +12,9 @@ app.Router = Backbone.Router.extend({
   },
   login: function () {
     $("[name=email]").focus();
+  },
+  newDoc: function () {
+    var docFormView = new app.DocFormView({ el: $("#doc-new") });
   },
   sharing: function () {
     $("[name=access]").on("change", function () {

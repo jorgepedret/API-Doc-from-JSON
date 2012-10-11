@@ -7,11 +7,11 @@ header#header
             span.icon-bar
             span.icon-bar
             span.icon-bar
-        a.brand(href!=getURL("/docs/#{ doc.id }", preview)) <i class="icon-home icon-white"></i> #{ doc.name }
+        a.brand(href!=getURL("/docs/#{ doc.slug }", preview)) <i class="icon-home icon-white"></i> #{ doc.name }
         - if (preview)
           .nav-collapse.collapse.pull-right
             ul.nav
-              li: a(href="/docs/#{ doc.id }") &larr; Go back to Edit
+              li: a(href="/docs/#{ doc.slug }") &larr; Go back to Edit
         - if (isLoggedIn)
           .nav-collapse.collapse.pull-right
             ul.nav

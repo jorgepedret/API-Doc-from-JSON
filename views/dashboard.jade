@@ -5,16 +5,17 @@ header.page-header
   table.table.table-striped.table-hover
     each doc in docs
       tr
-        td: a(href="/docs/#{ doc.id }")= doc.name
+        td: a(href="/docs/#{ doc.slug }")= doc.name
         td
           .btn-group
             a.btn.dropdown-toggle(data-toggle="dropdown", href="#") <i class="icon-cog"></i> <span class="caret"></span>
             ul.dropdown-menu
-              li: a(href="/docs/#{ doc.id }") Edit
-              li: a(href="#") Sharing
+              li: a(href="/docs/#{ doc.slug }") <i class="icon-pencil"></i> Edit
+              li: a(href="/docs/#{ doc.slug }/sharing") <i class="icon-user"></i> Sharing
+              li: a(href="/docs/#{ doc.slug }/delete") <i class="icon-trash"></i> Delete
               li.divider
-              li: a(href="#") Download JSON file
-              li: a(href="#") Export as static website
+              li: a(href="/docs/#{ doc.slug }/json") <i class="icon-download-alt"></i> Download JSON file
+              li: a(href="/docs/#{ doc.slug }/export") <i class="icon-download-alt"></i> Export as static website
 - else
   .alert.alert-info
     h4 No docs!

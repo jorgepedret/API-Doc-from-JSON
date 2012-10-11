@@ -1,9 +1,9 @@
 ul.sidebar-nav
   li(class="#{ active === 'home'?'active':'' }")
-    a(href!=getURL("/docs/#{ doc.id }", preview)) Overview
+    a(href!=getURL("/docs/#{ doc.slug }", preview)) Overview
   li(class="#{ active === 'endpoints'?'active':'' }")
-    a(href!=getURL("/docs/#{ doc.id }/endpoints", preview)) Endpoints
+    a(href!=getURL("/docs/#{ doc.slug }/endpoints", preview)) Endpoints
     ul
       each group, i in doc.groups
         li(class="#{ active === i?'active':'' }")
-          a(href!=getURL("/docs/#{ doc.id }/endpoints/#{ i }", preview))= group.name
+          a(href!=getURL("/docs/#{ doc.slug }/endpoints/#{ i }", preview))= group.name

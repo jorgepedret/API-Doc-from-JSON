@@ -74,13 +74,13 @@ module.exports = function (client) {
       var dbObj = {
         owner: obj.owner,
         id: obj.id,
+        slug: obj.slug,
         name: obj.name,
         created_at: obj.created_at,
         updated_at: obj.updated_at
       };
       if (!old) {
         // Couldn't find the object, so it most be a new record
-        console.log("WRITING: doc:slug:" + obj.slug, obj.id);
         client.multi()
         .hmset(key, dbObj)
         .zadd(namespace + ":collection", (new Date(obj.created_at).getTime()), obj.id)
@@ -118,8 +118,11 @@ module.exports = function (client) {
         break;
       }
       client.get(namespace + ":" + key + ":" + q[key], function (err, id){
-        console.log(id);
-        client.hgetall(namespace + ":" + id, callback);
+        if (id) {
+          client.hgetall(namespace + ":" + id, callback);
+        } else {
+          callback("Doesn't exists", null);
+        }
       });
     } else {
       client.hgetall(namespace + ":" + q, callback);
