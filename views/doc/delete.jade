@@ -1,0 +1,7 @@
+.alert.alert-danger
+  h4 Deleting doc
+  p Are you sure you want to permanently delete this doc?
+  form(method="post", action="/docs/#{ doc.slug }")
+    input(type="hidden", name="_method", value="delete")
+    button.btn Cancel
+    button.btn(type="submit") Confirm Delete

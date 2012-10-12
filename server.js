@@ -211,6 +211,27 @@ app.get("/docs/:doc", middleware.profile, checkDoc, function (req, rsp) {
   rsp.render("doc/intro", params);
 });
 
+app.get("/docs/:doc/delete", authorized, checkDoc, function (req, rsp) {
+  rsp.render("doc/delete", {
+    layout: "layouts/doc-edit",
+    doc: req.doc
+  })
+});
+
+app.delete("/docs/:doc", authorized, checkDoc, function (req, rsp) {
+  var doc = req.doc;
+  // Make sure it's the owner of the doc
+  if (doc.owner === req.profile.id) {
+    Doc.del(doc.id, function (err) {
+      req.flash("success", "Doc deleted");
+      rsp.redirect("/dashboard");
+    });
+  } else {
+    req.flash("error", "Sorry, You don't have permission to delete this doc!");
+    rsp.redirect("/docs/" + req.params.doc + "");
+  }
+});
+
 app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/sharing", {
     layout: "layouts/doc-edit",

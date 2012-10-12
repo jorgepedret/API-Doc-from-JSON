@@ -7,7 +7,6 @@ var docs_dir = config.docs_dir;
 exports.doc = {
   blacklist: function (obj, next) {
     delete obj.id;
-    delete obj.slug;
     delete obj.created_at;
     delete obj.updated_at;
     next(obj);
