@@ -233,11 +233,43 @@ app.delete("/docs/:doc", authorized, checkDoc, function (req, rsp) {
 });
 
 app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
-  rsp.render("doc/sharing", {
-    layout: "layouts/doc-edit",
-    title: "Sharing | " + req.doc.name,
-    active: "asdasda",
-    doc: req.doc
+  var doc = req.doc;
+  var sharingAccounts = [];
+  var editCount = doc.editAccess.length;
+  var viewCount = doc.viewAccess.length;
+  var totalCount = editCount + viewCount;
+  var count = 0;
+  function response() {
+    rsp.render("doc/sharing", {
+      layout: "layouts/doc-edit",
+      title: "Sharing | " + req.doc.name,
+      active: "asdasda",
+      doc: req.doc,
+      sharingAccounts: sharingAccounts
+    });
+  }
+  if (totalCount <= 0) {
+    response();
+  }
+  doc.editAccess.forEach(function (userId) {
+    rolodex.account.get(userId, function (account) {
+      account.canEdit = true;
+      sharingAccounts.push(account);
+      count++;
+      if (count >= totalCount) {
+        response();
+      }
+    });
+  });
+  doc.viewAccess.forEach(function (userId) {
+    rolodex.account.get(userId, function (account) {
+      account.canEdit = false;
+      sharingAccounts.push(account);
+      count++;
+      if (count >= totalCount) {
+        response();
+      }
+    });
   });
 });
 
@@ -261,13 +293,13 @@ app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   var doc = req.doc;
   function saveDoc(id, doc) {
     Doc.get({ slug: doc.slug }, function (exists) {
-      if (!exists) {
+      if (exists) {
         Doc.set(id, doc, function (err, doc) {
           req.flash("success", "Sharing settings saved!");
           rsp.redirect("/docs/" + req.params.doc + "/sharing");
         });
       } else {
-        req.flash("error", "An API Doc with the same URL already exists");
+        req.flash("error", "Invalid API Doc");
         rsp.redirect("/docs/" + req.params.doc);
       }
     });

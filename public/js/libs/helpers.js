@@ -2,7 +2,6 @@ $.fn.repeatable = function (options) {
   return this.each(function () {
     var that = $(this);
     that.$ = that.find;
-    console.log(that);
     var template = that.$(".repeatable-item-template");
     var addBtn = that.$(".repeatable-add");
     var remBtn = that.$(".repeatable-rem");
