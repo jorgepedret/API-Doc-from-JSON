@@ -9,10 +9,16 @@ header#header
         a.brand(href="/") <i class="icon-home icon-white"></i> <strong>API</strong>me
         .nav-collapse.collapse
           ul.nav
-            li: a(href="/features") Features
-            li: a(href="/examples") Examples
-            li: a(href="/github") Github
-            li: a(href="/support") Support
+            li(class=active=='features'?'active':'')
+              a(href="/features") Features
+            li(class=active=='examples'?'active':'')
+              a(href="/examples") Examples
+            li(class=active=='github'?'active':'')
+              a(href="/github") Github
+            li(class=active=='support'?'active':'')
+              a(href="/support") Support
           ul.nav.pull-right
-            li: a(href="/signup") Pricing &amp; Signup
-            li: a.navbar-link(href="/login") Login
+            li(class=active=='plans'?'active':'')
+              a(href="/plans") Pricing &amp; Signup
+            li(class=active=='login'?'active':'')
+              a.navbar-link(href="/login") Login

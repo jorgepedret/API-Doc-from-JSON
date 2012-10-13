@@ -1,5 +1,6 @@
 var Thug = require("Thug");
 var fs   = require("fs");
+var async   = require("async");
 var config  = require("../config");
 var filters = require("./filters").doc;
 
@@ -214,16 +215,16 @@ module.exports = function (client) {
     client.smembers("user:" + owner + ":doc:collection", function (err, reply){
       var total = reply.length;
       if (total <= 0) {
-        cb(reply);
+        cb(docs);
       } else {
         var count = reply.length;
-        reply.forEach(function (id) {
+        async.map(reply, function (id, callback) {
           client.hgetall(namespace + ":" + id, function (err, obj) {
-            docs.push(obj);
-            if (--count == 0) {
-              cb(docs);
-            }
+            if (!err && obj) docs.push(obj);
+            callback(err, obj);
           })
+        }, function () {
+          cb(docs);
         });
       }
     })

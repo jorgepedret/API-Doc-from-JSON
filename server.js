@@ -1,4 +1,5 @@
 var fs          = require("fs");
+var async       = require("async");
 var express     = require("express");
 var jade        = require("jade");
 var slugs       = require("slugs");
@@ -93,6 +94,13 @@ app.get("/support", middleware.profile, function (req, rsp) {
   });
 });
 
+app.get("/plans", middleware.profile, function (req, rsp) {
+  rsp.render("plans", {
+    layout: "layouts/sales",
+    active: "plans"
+  });
+});
+
 app.get("/logout", authorized, function (req, rsp) {
   req.session.account = null;
   rsp.redirect("/");
@@ -100,7 +108,8 @@ app.get("/logout", authorized, function (req, rsp) {
 
 app.get("/login", unauthorized, function (req, rsp) {
   rsp.render("login", {
-    layout: "layouts/sales"
+    layout: "layouts/sales",
+    active: "login"
   });
 });
 
@@ -235,11 +244,26 @@ app.delete("/docs/:doc", authorized, checkDoc, function (req, rsp) {
 app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   var doc = req.doc;
   var sharingAccounts = [];
-  var editCount = doc.editAccess.length;
-  var viewCount = doc.viewAccess.length;
-  var totalCount = editCount + viewCount;
-  var count = 0;
-  function response() {
+  async.series([
+    function (cb) {
+      async.map(doc.editAccess, function (userId, callback) {
+        rolodex.account.get(userId, function (account) {
+          account.canEdit = true;
+          sharingAccounts.push(account);
+          callback(null, account);
+        });
+      }, cb);
+    },
+    function (cb) {
+      async.map(doc.viewAccess, function (userId) {
+        rolodex.account.get(userId, function (account) {
+          account.canEdit = false;
+          sharingAccounts.push(account);
+          callback(null, account);
+        });
+      }, cb);
+    }
+  ], function (err, results) {
     rsp.render("doc/sharing", {
       layout: "layouts/doc-edit",
       title: "Sharing | " + req.doc.name,
@@ -247,54 +271,67 @@ app.get("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
       doc: req.doc,
       sharingAccounts: sharingAccounts
     });
-  }
-  if (totalCount <= 0) {
-    response();
-  }
-  doc.editAccess.forEach(function (userId) {
-    rolodex.account.get(userId, function (account) {
-      account.canEdit = true;
-      sharingAccounts.push(account);
-      count++;
-      if (count >= totalCount) {
-        response();
-      }
-    });
-  });
-  doc.viewAccess.forEach(function (userId) {
-    rolodex.account.get(userId, function (account) {
-      account.canEdit = false;
-      sharingAccounts.push(account);
-      count++;
-      if (count >= totalCount) {
-        response();
-      }
-    });
   });
 });
 
-function getAccount(email, cb) {
-  rolodex.account.get({ email: email}, function (account) {
-    if (!account) {
-      rolodex.account.set({
-        email: email,
-        password: "123456",
-        password_confirmation: "123456"
-      }, function (err, account) {
-        cb(err, account);
-      })
-    } else {
-      cb(null, account);
-    }
-  });
-}
-
 app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   var doc = req.doc;
-  function saveDoc(id, doc) {
+  function getAccount(email, cb) {
+    rolodex.account.get({ email: email}, function (account) {
+      if (!account) {
+        rolodex.account.set({
+          email: email,
+          password: "123456",
+          password_confirmation: "123456"
+        }, function (err, account) {
+          cb(err, account);
+        })
+      } else {
+        cb(null, account);
+      }
+    });
+  }
+  async.series([
+    function (cb) {
+      if (doc.isOwner) {
+        switch (req.body.access) {
+          case 'public':
+            doc.isPublic = true;
+            doc.editAccess = [];
+            doc.viewAccess = [];
+            cb(null, doc);
+            break;
+          case 'emails':
+            doc.isPublic = false;
+            doc.editAccess = [];
+            doc.viewAccess = [];
+            if (req.body.emails && req.body.emails.length) {
+              async.map(req.body.emails, function (email, callback) {
+                getAccount(email.email, function (err, account) {
+                  if (email.canEdit) {
+                    doc.editAccess.push(account.id);
+                  } else {
+                    doc.viewAccess.push(account.id);
+                  }
+                  callback(null, account);
+                });
+              }, cb);
+            }
+            break;
+          case 'url':
+            doc.isPublic = false;
+            cb(null, doc);
+            break;
+        }
+      } else {
+        req.flash("error", "Access denied");
+        rsp.redirect("/docs/" + req.params.doc);
+      }
+    }
+  ], function (err, response) {
     Doc.get({ slug: doc.slug }, function (exists) {
       if (exists) {
-        Doc.set(id, doc, function (err, doc) {
+        Doc.set(doc.id, doc, function (err, doc) {
           req.flash("success", "Sharing settings saved!");
           rsp.redirect("/docs/" + req.params.doc + "/sharing");
         });
@@ -303,45 +340,7 @@ app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
         rsp.redirect("/docs/" + req.params.doc);
       }
     });
-  }
-  if (doc.isOwner) {
-    switch (req.body.access) {
-      case 'public':
-        doc.isPublic = true;
-        doc.editAccess = [];
-        doc.viewAccess = [];
-        saveDoc(doc.id, doc);
-        break;
-      case 'emails':
-        doc.isPublic = false;
-        doc.editAccess = [];
-        doc.viewAccess = [];
-        var count = 0;
-        if (req.body.emails && req.body.emails.length) {
-          req.body.emails.forEach(function (email) {
-            getAccount(email.email, function (err, account) {
-              if (email.canEdit) {
-                doc.editAccess.push(account.id);
-              } else {
-                doc.viewAccess.push(account.id);
-              }
-              count++;
-              if (count >= req.body.emails.length) {
-                saveDoc(doc.id, doc);
-              }
-            });
-          });
-        }
-        break;
-      case 'url':
-        doc.isPublic = false;
-        saveDoc(doc.id, doc);
-        break;
-    }
-  } else {
-    req.flash("error", "Access denied");
-    rsp.redirect("/docs/" + req.params.doc);
-  }
+  });
 });
 
 app.get("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {
