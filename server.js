@@ -343,6 +343,24 @@ app.post("/docs/:doc/sharing", authorized, checkDoc, function (req, rsp) {
   });
 });
 
+app.get("/docs/:doc/export/json", authorized, checkDoc, function (req, rsp) {
+  var doc = req.doc;
+  delete doc.owner;
+  delete doc.id;
+  delete doc.slug;
+  delete doc.editAccess;
+  delete doc.viewAccess;
+  delete doc.isOwner;
+  delete doc.canEdit;
+  delete doc.isPublic;
+  rsp.status(200);
+  rsp.send('<pre>' + JSON.stringify(doc, null, 2) + '</pre>');
+});
+
+app.get("/docs/:doc/export/static", authorized, checkDoc, function (req, rsp) {
+  
+});
+
 app.get("/docs/:doc/new-group", authorized, checkDoc, function (req, rsp) {
   rsp.render("doc/new-group", {
       title: "Add new group",

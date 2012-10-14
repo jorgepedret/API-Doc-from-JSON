@@ -9,7 +9,23 @@
     "users": {
       "name": "Users",
       "title": "User Endpoints",
-      "intro": ""
+      "intro": "",
+      "endpoints": {
+        "get-basic-information-about-a-user": {
+          "method": "get",
+          "path": "/account.json/{account_id}",
+          "name": "Get basic information about a user.",
+          "description": "asdasdasd",
+          "params": {
+            "].ke": "",
+            "].descriptio": "",
+            "0].ke": "asdasd",
+            "0].descriptio": "asdasasd"
+          },
+          "curl": "asasdas",
+          "response": "dasdasd"
+        }
+      }
     },
     "relationships": {
       "name": "Relationships",
@@ -53,7 +69,7 @@
     }
   },
   "id": "e6231105-9371-4325-9050-3d136b2d8d10",
-  "updated_at": "2012-10-13T05:50:07.356Z",
+  "updated_at": "2012-10-13T20:15:34.996Z",
   "created_at": "2012-10-12T04:58:38.211Z",
   "isPublic": false,
   "editAccess": [

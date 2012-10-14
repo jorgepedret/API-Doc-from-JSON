@@ -1,29 +1,82 @@
 header.page-header
   h1 Pricing &amp; Plans
 
-h2 Instant sharing
-p Share your API Doc with anybody! Hell, you can even make it public.
+.row-fluid
+  .span3.alert.alert-success
+    hgroup
+      h2 FREE
+      h3 Free
+    p Choose this plan if:
+    ul.unstyled.list-cozy.list-ok
+      li You're using APIme for the first time
+      li You're working with a team of less than 2 people
+      li You don't need any of the fancy features
+    p: a.btn-block.btn.btn-success(href="/signup") Signup
+  .span3.alert.alert-danger
+    hgroup
+      h2 Bronze
+      h3 $5/month
+    p Choose this plan if:
+    ul.unstyled.list-cozy.list-ok
+      li You're a stablished freelance developer or small startup
+      li You're working with a team of 3 to 5 people
+      li You don't need any of the fancy features
+    p: a.btn-block.btn.btn-danger(href="/signup") Signup
+  .span3.alert.alert-info
+    hgroup
+      h2 Silver
+      h3 $8/month
+    p Choose this plan if:
+    ul.unstyled.list-cozy.list-ok
+      li You're an stablished medium/large business
+      li You're working with a team of 6 to 10 people
+      li Advanced features would be nice to have
+    p: a.btn-block.btn.btn-info(href="/signup") Signup
+  .span3.alert
+    hgroup
+      h2 Gold
+      h3 $12/month
+    p Choose this plan if:
+    ul.unstyled.list-cozy.list-ok
+      li You're a large business business with money to spare
+      li You're working with a large team of more than 10 people
+      li You need the advanced features
+    p: a.btn-block.btn.btn-warning(href="/signup") Signup
 
-h2 Hosted Platform
-p You don’t have to worry about updating any files or making sure your API consumers have the latest doc. With APIme everybody is in sync.
-
-h2 Private Data
-p Your information stays private and only you choose who to share it with.
-
-h2 No lock ups
-p At any time you can export your API data as JSON or even as a static website. You can also take advantage of our open source library to host the docs yourself.
-
-h2 Future Features
-p This is just the beginning we’ll be soon implementing awesome features like:
-ul
-  li Documentation Versioning
-  li CNAME Domains
-  li Branding
-  li SSL
-  li Importing from JSON
-  li Testing endpoints
-  li and many more...
-
+h2 Compare
+table.table.table-striped.table-hover
+  thead
+    tr
+      th Features
+      th FREE
+      th Bronze
+      th Silver
+      th Gold
+  tbody
+    tr
+      td Feature 1
+      td: i.icon-ok
+      td: i.icon-ok
+      td: i.icon-ok
+      td: i.icon-ok
+    tr
+      td Feature 2
+      td
+      td: i.icon-ok
+      td: i.icon-ok
+      td: i.icon-ok
+    tr
+      td Feature 3
+      td
+      td
+      td: i.icon-ok
+      td: i.icon-ok
+    tr
+      td Feature 4
+      td
+      td
+      td
+      td: i.icon-ok
 h2 Sign-up
 p Checkout our pricing plans:
 ul

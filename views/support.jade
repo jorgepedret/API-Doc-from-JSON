@@ -1,8 +1,32 @@
 header.page-header
   h1 Support
 
+h2 Contact Us
+p Need to get in touch with us? Fill out the form below:
+.row-fluid
+  .span6
+    form.form-horizontal(method="post")
+      .control-group
+        label.control-label() Name
+        .controls
+          input(type="text", name="name", placeholder="Your Name")
+      .control-group
+        label.control-label() Email
+        .controls
+          input(type="text", name="email", placeholder="Your Email")
+      .control-group
+        label.control-label() Message
+        .controls
+          textarea(name="message", placeholder="Your Message")
+      .form-actions
+        button.btn-large.btn.btn-success(type="submit") Send
+  .span6
+    p <strong>Phone:</strong> +1 604 787 8879
+    p <strong>Email:</strong> <a href="#">info@apime.com</a>
+    address
+      | <strong>Address:</strong><br />
+      | 1707-1200 West Georgia Str.<br />
+      | Vancouver, B.C.<br />
+      | Canada, V6R 4R2
 h2 FAQ
 p Coming soon!
-
-h2 Contact Us
-p Contact form, address, phone and email

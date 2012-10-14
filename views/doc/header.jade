@@ -6,7 +6,7 @@ header#header
           span.icon-bar
           span.icon-bar
           span.icon-bar
-        a.brand(href="/dashboard") <i class="icon-home icon-white"></i> <strong>API</strong>me
+        a.brand(href="/dashboard") <strong>API</strong>me
         .nav-collapse.collapse
           ul.nav
             li(class="#{ active=='new-group'?'active':'' }")
@@ -19,10 +19,10 @@ header#header
                 li: a(href="/docs/#{ doc.slug }?preview") Preview
                 li: a(href="/docs/#{ doc.slug }/sharing") Sharing
                 li.divider
-                li: a(href="#") Download JSON file
-                li: a(href="#") Export as static website
+                li: a(href="/docs/#{ doc.slug }/export/json") Download JSON file
+                li: a(href="/docs/#{ doc.slug }/export/static") Export as static website
                 li.divider
-                li: a(href="#") Delete Doc
+                li: a(href="/docs/#{ doc.slug }/delete") Delete Doc
 
           
           ul.nav.pull-right
