@@ -1,6 +1,7 @@
 {
+  "name": "dynamicapidoc",
   "description": "API Doc Template",
-  "version": "0.0.1-2",
+  "version": "0.0.1",
   "dependencies": {
     "express": "2.5.11",
     "jade": "0.27.2",
@@ -9,7 +10,7 @@
     "rolodex": "0.7.1",
     "thug": "0.3.2",
     "redis": "0.8.1",
-    "uuid": "1.3.3"
+    "node-uuid": "1.3.3"
   },
   "scripts": { 
     "test": "./node_modules/.bin/mocha --ignore-leaks test/*"
@@ -21,10 +22,5 @@
   "engines": {
     "node": "0.8.x",
     "npm": "1.1.x"
-  },
-  "subdomain": "dynamicapidoc",
-  "scripts": {
-    "start": "server.js"
-  },
-  "name": "dynamicapidoc"
+  }
 }
