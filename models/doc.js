@@ -1,4 +1,4 @@
-var Thug = require("Thug");
+var Thug = require("thug");
 var fs   = require("fs");
 var async   = require("async");
 var config  = require("../config");
